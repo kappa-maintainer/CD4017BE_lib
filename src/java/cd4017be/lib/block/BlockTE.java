@@ -16,16 +16,16 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.tileentity.TileEntityType.Builder;
 import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.shapes.ISelectionContext;
@@ -297,7 +297,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 			if (!stack.hasTag()) return;
 		} else {
 			stack = new ItemStack(this);
-			CompoundNBT nbt = te.save(stack.getOrCreateTagElement(TE_TAG));
+			CompoundTag nbt = te.save(stack.getOrCreateTagElement(TE_TAG));
 			nbt.remove("id");
 			nbt.remove("x");
 			nbt.remove("y");
@@ -392,11 +392,11 @@ public class BlockTE<T extends TileEntity> extends Block {
 		int comparatorSignal();
 	}
 
-	public interface ISpecialContainerProvider extends Consumer<PacketBuffer>, IUnnamedContainerProvider {
+	public interface ISpecialContainerProvider extends Consumer<FriendlyByteBuf>, IUnnamedContainerProvider {
 		/**Write extra data to be send to client for container creation.
 		 * @param extraData */
 		@Override
-		void accept(PacketBuffer extraData);
+		void accept(FriendlyByteBuf extraData);
 	}
 
 	public interface ITEShape {

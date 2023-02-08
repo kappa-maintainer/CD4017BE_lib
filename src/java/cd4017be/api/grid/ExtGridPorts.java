@@ -9,13 +9,13 @@ import cd4017be.lib.Lib;
 import it.unimi.dsi.fastutil.longs.LongArrays;
 import net.minecraft.nbt.LongArrayNBT;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
+import net.minecraftforge.common.util.TagSerializable;
 
 /**Manages grid port connections for a {@link IGridPortHolder}.
  * @author CD4017BE */
-public class ExtGridPorts implements INBTSerializable<LongArrayNBT> {
+public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
 
 	private final IGridPortHolder host;
 	/**bit63 = {0: port, 1: metadata}, bit62 = link valid <br>

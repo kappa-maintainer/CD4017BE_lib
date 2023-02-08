@@ -1,6 +1,6 @@
 package cd4017be.api.grid;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 
 /**Lets TileEntities have signal connections with

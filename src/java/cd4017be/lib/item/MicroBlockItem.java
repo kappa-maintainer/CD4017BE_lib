@@ -19,9 +19,9 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.EmptyBlockReader;
@@ -73,7 +73,7 @@ public class MicroBlockItem extends GridItem implements IModelDataItem {
 		if (pos < 0) return ActionResultType.PASS;
 		if (player.level.isClientSide) return ActionResultType.CONSUME;
 		
-		CompoundNBT tag = stack.getOrCreateTag();
+		CompoundTag tag = stack.getOrCreateTag();
 		BlockState block = getBlock(new BlockItemUseContext(
 			player, hand, ItemStack.of(tag), hit
 		));
@@ -111,7 +111,7 @@ public class MicroBlockItem extends GridItem implements IModelDataItem {
 
 	public ItemStack wrap(ItemStack stack, BlockState state, int n) {
 		ItemStack ret = new ItemStack(this, n);
-		CompoundNBT nbt = stack.save(ret.getOrCreateTag());
+		CompoundTag nbt = stack.save(ret.getOrCreateTag());
 		nbt.putByte("Count", (byte)1);
 		nbt.putInt("state", Block.getId(state));
 		return ret;

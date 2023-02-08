@@ -15,12 +15,12 @@ import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -46,20 +46,20 @@ public class ItemFluidUtil {
 		);
 	}
 
-	public static void loadInventory(ListNBT list, ItemStack[] inv) {
+	public static void loadInventory(ListTag list, ItemStack[] inv) {
 		Arrays.fill(inv, ItemStack.EMPTY);
 		for (int i = 0; i < list.size(); i++) {
-			CompoundNBT tag = list.getCompound(i);
+			CompoundTag tag = list.getCompound(i);
 			int s = tag.getByte("slot") & 0xff;
 			if (s < inv.length) inv[s] = ItemStack.of(tag);
 		}
 	}
 
-	public static ListNBT saveInventory(ItemStack[] inv) {
-		ListNBT list = new ListNBT();
+	public static ListTag saveInventory(ItemStack[] inv) {
+		ListTag list = new ListTag();
 		for (int i = 0; i < inv.length; i++)
 			if (!inv[i].isEmpty()) {
-				CompoundNBT tag = new CompoundNBT();
+				CompoundTag tag = new CompoundTag();
 				inv[i].save(tag);
 				tag.putByte("slot", (byte)i);
 				list.add(tag);
@@ -67,25 +67,25 @@ public class ItemFluidUtil {
 		return list;
 	}
 
-	public static ItemStack[] loadItems(ListNBT list) {
+	public static ItemStack[] loadItems(ListTag list) {
 		ItemStack[] items = new ItemStack[list.size()];
 		for (int i = 0; i < items.length; i++)
 			items[i] = ItemStack.of(list.getCompound(i));
 		return items;
 	}
 
-	public static void loadItems(ListNBT list, ItemStack[] items) {
+	public static void loadItems(ListTag list, ItemStack[] items) {
 		int m = Math.min(items.length, list.size());
 		for (int i = 0; i < m; i++)
 			items[i] = ItemStack.of(list.getCompound(i));
 		Arrays.fill(items, m, items.length, ItemStack.EMPTY);
 	}
 
-	public static ListNBT saveItems(ItemStack[] items) {
-		ListNBT list = new ListNBT();
+	public static ListTag saveItems(ItemStack[] items) {
+		ListTag list = new ListTag();
 		for (ItemStack item : items)
 			if (!item.isEmpty()) {
-				CompoundNBT tag = new CompoundNBT();
+				CompoundTag tag = new CompoundTag();
 				item.save(tag);
 				list.add(tag);
 			}
@@ -97,8 +97,8 @@ public class ItemFluidUtil {
 	 * @param item
 	 * @return
 	 */
-	public static CompoundNBT saveItemHighRes(ItemStack item) {
-		CompoundNBT nbt = new CompoundNBT();
+	public static CompoundTag saveItemHighRes(ItemStack item) {
+		CompoundTag nbt = new CompoundTag();
 		item.save(nbt);
 		nbt.remove("Count");
 		nbt.putInt("Num", item.getCount());
@@ -110,17 +110,17 @@ public class ItemFluidUtil {
 	 * @param nbt
 	 * @return
 	 */
-	public static ItemStack loadItemHighRes(CompoundNBT nbt) {
+	public static ItemStack loadItemHighRes(CompoundTag nbt) {
 		ItemStack item = ItemStack.of(nbt);
 		item.setCount(nbt.getInt("Num"));
 		return item;
 	}
 
-	/**Like {@link PacketBuffer#writeItemStack(ItemStack)} but stores
+	/**Like {@link FriendlyByteBuf#writeItemStack(ItemStack)} but stores
 	 * stacksize with 32-bit precision instead of just 8-bit.
 	 * @param buf packet to write
 	 * @param stack ItemStack to serialize */
-	public static void writeItemHighRes(PacketBuffer buf, ItemStack stack) {
+	public static void writeItemHighRes(FriendlyByteBuf buf, ItemStack stack) {
 		if (stack.isEmpty()) buf.writeBoolean(false);
 		else {
 			buf.writeBoolean(true);
@@ -134,12 +134,12 @@ public class ItemFluidUtil {
 		}
 	}
 
-	/**Like {@link PacketBuffer#readItemStack()} but loads
+	/**Like {@link FriendlyByteBuf#readItemStack()} but loads
 	 * stacksize with 32-bit precision instead of just 8-bit.
 	 * @param buf packet to write
 	 * @return deserialized ItemStack
 	 * @throws IOException */
-	public static ItemStack readItemHighRes(PacketBuffer buf) throws IOException {
+	public static ItemStack readItemHighRes(FriendlyByteBuf buf) throws IOException {
 		if (!buf.readBoolean()) return ItemStack.EMPTY;
 		int i = buf.readVarInt();
 		int j = buf.readVarInt();
@@ -148,18 +148,18 @@ public class ItemFluidUtil {
 		return itemstack;
 	}
 
-	public static ListNBT saveFluids(FluidStack[] fluids) {
-		ListNBT list = new ListNBT();
+	public static ListTag saveFluids(FluidStack[] fluids) {
+		ListTag list = new ListTag();
 		for (FluidStack fluid : fluids)
 			if (fluid != null) {
-				CompoundNBT tag = new CompoundNBT();
+				CompoundTag tag = new CompoundTag();
 				fluid.writeToNBT(tag);
 				list.add(tag);
 			}
 		return list;
 	}
 
-	public static FluidStack[] loadFluids(ListNBT list) {
+	public static FluidStack[] loadFluids(ListTag list) {
 		FluidStack[] fluids = new FluidStack[list.size()];
 		for (int i = 0; i < fluids.length; i++)
 			fluids[i] = FluidStack.loadFluidStackFromNBT(list.getCompound(i));
@@ -341,23 +341,23 @@ public class ItemFluidUtil {
 		world.addFreshEntity(ei);
 	}
 
-	public static void writeFluidStack(PacketBuffer buf, FluidStack stack) {
+	public static void writeFluidStack(FriendlyByteBuf buf, FluidStack stack) {
 		buf.writeFluidStack(stack);
 	}
 
-	public static FluidStack readFluidStack(PacketBuffer buf) throws IOException {
+	public static FluidStack readFluidStack(FriendlyByteBuf buf) throws IOException {
 		return buf.readFluidStack();
 	}
 
-	public static CompoundNBT createTag(ItemStack stack) {
-		CompoundNBT nbt = stack.getTag();
-		if (nbt == null) stack.setTag(nbt = new CompoundNBT());
+	public static CompoundTag createTag(ItemStack stack) {
+		CompoundTag nbt = stack.getTag();
+		if (nbt == null) stack.setTag(nbt = new CompoundTag());
 		return nbt;
 	}
 
-	public static CompoundNBT createTag(CompoundNBT nbt, String key) {
+	public static CompoundTag createTag(CompoundTag nbt, String key) {
 		if (nbt.contains(key, NBT.TAG_COMPOUND)) return nbt.getCompound(key);
-		CompoundNBT tag = new CompoundNBT();
+		CompoundTag tag = new CompoundTag();
 		nbt.put(key, tag);
 		return tag;
 	}

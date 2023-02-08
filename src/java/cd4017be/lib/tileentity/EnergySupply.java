@@ -7,10 +7,10 @@ import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.*;
 import cd4017be.lib.tileentity.BaseTileEntity.ITickableServerOnly;
 import net.minecraft.entity.player.*;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -128,7 +128,7 @@ implements IEnergyStorage, ITickableServerOnly, ITENeighborChange, IUnnamedConta
 	}
 
 	@Override
-	public void handlePlayerPacket(PacketBuffer pkt, ServerPlayerEntity sender) throws Exception {
+	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
 		switch(pkt.readByte()) {
 		case 0:
 			if((limI = pkt.readInt()) < 0) limI = 0;

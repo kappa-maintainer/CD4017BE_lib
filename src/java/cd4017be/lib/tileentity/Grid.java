@@ -23,16 +23,16 @@ import cd4017be.lib.util.Utils;
 import cd4017be.lib.util.VoxelShape4x4x4;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.*;
 import net.minecraft.util.math.vector.Vector3d;
@@ -174,11 +174,11 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	public void storeState(CompoundNBT nbt, int mode) {
+	public void storeState(CompoundTag nbt, int mode) {
 		super.storeState(nbt, mode);
-		ListNBT list = new ListNBT();
+		ListTag list = new ListTag();
 		for (GridPart part : parts) {
-			CompoundNBT tag = new CompoundNBT();
+			CompoundTag tag = new CompoundTag();
 			part.storeState(tag, mode);
 			list.add(tag);
 		}
@@ -193,9 +193,9 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	public void loadState(CompoundNBT nbt, int mode) {
+	public void loadState(CompoundTag nbt, int mode) {
 		super.loadState(nbt, mode);
-		ListNBT list = nbt.getList("parts", NBT.TAG_COMPOUND);
+		ListTag list = nbt.getList("parts", NBT.TAG_COMPOUND);
 		boolean empty = (mode & SAVE) != 0 || list.size() != parts.size();
 		if (empty) parts.clear();
 		boolean mod = empty;
@@ -356,7 +356,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	public ItemStack getItem() {
 		if (parts.isEmpty()) return ItemStack.EMPTY;
 		ItemStack stack = new ItemStack(Content.grid);
-		CompoundNBT nbt = stack.getOrCreateTagElement(BlockTE.TE_TAG);
+		CompoundTag nbt = stack.getOrCreateTagElement(BlockTE.TE_TAG);
 		storeState(nbt, SAVE);
 		nbt.remove("extIO");
 		return stack;
@@ -430,7 +430,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	protected byte writeSync(PacketBuffer pkt, boolean init) {
+	protected byte writeSync(FriendlyByteBuf pkt, boolean init) {
 		byte i = 0;
 		for (GridPart part : parts)
 			if (part instanceof IDynamicPart) {
@@ -441,7 +441,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	protected void readSync(PacketBuffer pkt, byte n) {
+	protected void readSync(FriendlyByteBuf pkt, byte n) {
 		if (dynamicParts != null && dynamicParts.length == n)
 			for (IDynamicPart m : dynamicParts)
 				m.readSync(pkt);

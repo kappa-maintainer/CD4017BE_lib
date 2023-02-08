@@ -2,7 +2,7 @@ package cd4017be.api.protect;
 
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 
 /**

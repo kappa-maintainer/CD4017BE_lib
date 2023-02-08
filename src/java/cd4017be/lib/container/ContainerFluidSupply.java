@@ -16,7 +16,7 @@ import cd4017be.lib.network.StateSyncAdv;
 import cd4017be.lib.tileentity.FluidSupply;
 import cd4017be.lib.tileentity.FluidSupply.Slot;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -27,7 +27,7 @@ public class ContainerFluidSupply extends AdvancedContainer {
 
 	private static final int[] indices = StateSyncAdv.array(8, 12);
 
-	public ContainerFluidSupply(int id, PlayerInventory inv, PacketBuffer pkt) {
+	public ContainerFluidSupply(int id, PlayerInventory inv, FriendlyByteBuf pkt) {
 		this(id, inv, new BasicTanks(12, 0), true, FluidSupply.class);
 	}
 

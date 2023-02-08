@@ -13,21 +13,21 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.INBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.ByteNBT;
 import net.minecraft.nbt.ByteArrayNBT;
 import net.minecraft.nbt.DoubleNBT;
 import net.minecraft.nbt.FloatNBT;
 import net.minecraft.nbt.IntNBT;
 import net.minecraft.nbt.IntArrayNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.LongNBT;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.LongTag;
 import net.minecraft.nbt.LongArrayNBT;
 import net.minecraft.nbt.ShortNBT;
-import net.minecraft.nbt.StringNBT;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
 import net.minecraft.util.math.RayTraceResult;
@@ -388,10 +388,10 @@ public class Utils {
 	 * @param arr array of Strings
 	 * @return list tag containing the serialized NBT data of each element
 	 */
-	public static ListNBT writeStringArray(String[] arr) {
-		ListNBT list = new ListNBT();
+	public static ListTag writeStringArray(String[] arr) {
+		ListTag list = new ListTag();
 		for (String s : arr)
-			list.add(StringNBT.valueOf(s));
+			list.add(StringTag.valueOf(s));
 		return list;
 	}
 
@@ -400,7 +400,7 @@ public class Utils {
 	 * @param arr optional pre-initialized array
 	 * @return String array from given NBT data
 	 */
-	public static String[] readStringArray(ListNBT list, String[] arr) {
+	public static String[] readStringArray(ListTag list, String[] arr) {
 		int l = list.size();
 		if (arr == null || arr.length < l) arr = new String[l];
 		for (int i = 0; i < l; i++)
@@ -429,12 +429,12 @@ public class Utils {
 			arr[i] = (short)(nbt[i << 1] & 0xff | nbt[i << 1 | 1] << 8);
 	}
 
-	public static INBT readTag(ByteBuf data, byte tagId) {
+	public static Tag readTag(ByteBuf data, byte tagId) {
 		switch(tagId) {
 		case NBT.TAG_BYTE: return ByteNBT.valueOf(data.readByte());
 		case NBT.TAG_SHORT: return ShortNBT.valueOf(data.readShort());
 		case NBT.TAG_INT: return IntNBT.valueOf(data.readInt());
-		case NBT.TAG_LONG: return LongNBT.valueOf(data.readLong());
+		case NBT.TAG_LONG: return LongTag.valueOf(data.readLong());
 		case NBT.TAG_FLOAT: return FloatNBT.valueOf(data.readFloat());
 		case NBT.TAG_DOUBLE: return DoubleNBT.valueOf(data.readDouble());
 		case NBT.TAG_BYTE_ARRAY: {
@@ -469,10 +469,10 @@ public class Utils {
 				throw new IndexOutOfBoundsException((l*2) + " > " + data.readableBytes());
 			byte[] arr = new byte[l];
 			data.readBytes(arr);
-			return StringNBT.valueOf(new String(arr, UTF8));
+			return StringTag.valueOf(new String(arr, UTF8));
 		}
 		case NBT.TAG_LIST: {
-			ListNBT list = new ListNBT();
+			ListTag list = new ListTag();
 			tagId = data.readByte();
 			for (int l = data.readInt(); l > 0; l--)
 				list.add(readTag(data, tagId));
@@ -482,12 +482,12 @@ public class Utils {
 		}
 	}
 
-	public static void writeTag(ByteBuf data, INBT tag) {
+	public static void writeTag(ByteBuf data, Tag tag) {
 		switch(tag.getId()) {
 		case NBT.TAG_BYTE: data.writeByte(((ByteNBT)tag).getAsByte()); return;
 		case NBT.TAG_SHORT: data.writeShort(((ShortNBT)tag).getAsShort()); return;
 		case NBT.TAG_INT: data.writeInt(((IntNBT)tag).getAsInt()); return;
-		case NBT.TAG_LONG: data.writeLong(((LongNBT)tag).getAsLong()); return;
+		case NBT.TAG_LONG: data.writeLong(((LongTag)tag).getAsLong()); return;
 		case NBT.TAG_FLOAT: data.writeFloat(((FloatNBT)tag).getAsFloat()); return;
 		case NBT.TAG_DOUBLE: data.writeDouble(((DoubleNBT)tag).getAsDouble()); return;
 		case NBT.TAG_BYTE_ARRAY: {
@@ -508,15 +508,15 @@ public class Utils {
 				data.writeLong(v);
 		}	return;
 		case NBT.TAG_STRING: {
-			byte[] arr = ((StringNBT)tag).getAsString().getBytes(UTF8);
+			byte[] arr = ((StringTag)tag).getAsString().getBytes(UTF8);
 			data.writeShort(arr.length);
 			data.writeBytes(arr);
 		}	return;
 		case NBT.TAG_LIST: {
-			ListNBT list = (ListNBT)tag;
+			ListTag list = (ListTag)tag;
 			data.writeByte(list.getElementType());
 			data.writeInt(list.size());
-			for (INBT stag : list)
+			for (Tag stag : list)
 				writeTag(data, stag);
 		}	return;
 		}

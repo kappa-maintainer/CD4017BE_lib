@@ -1,7 +1,7 @@
 package cd4017be.api.grid;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.storage.IServerConfiguration;
 import net.minecraft.world.storage.SaveFormat.LevelSave;
 import net.minecraftforge.fml.WorldPersistenceHooks;
@@ -57,17 +57,17 @@ public class Link {
 			}
 
 			@Override
-			public CompoundNBT getDataForWriting(
+			public CompoundTag getDataForWriting(
 				LevelSave levelSave, IServerConfiguration serverInfo
 			) {
-				CompoundNBT nbt = new CompoundNBT();
+				CompoundTag nbt = new CompoundTag();
 				nbt.putInt("nextLink", NEXT_ID);
 				return nbt;
 			}
 
 			@Override
 			public void readData(
-				LevelSave levelSave, IServerConfiguration serverInfo, CompoundNBT tag
+				LevelSave levelSave, IServerConfiguration serverInfo, CompoundTag tag
 			) {
 				NEXT_ID = tag.getInt("nextLink");
 			}

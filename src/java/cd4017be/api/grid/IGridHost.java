@@ -8,12 +8,10 @@ import static cd4017be.math.MCConv.dirVecF;
 
 import java.util.function.Predicate;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockRayTraceResult;
+
+import net.minecraft.world.item.ItemStack;
+
+import net.minecraft.core.Direction;
 
 /**Implemented by the TileEntity that is hosting {@link GridPart}s.
  * @author CD4017BE */

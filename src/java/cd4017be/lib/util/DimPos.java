@@ -6,17 +6,17 @@ import com.google.common.base.MoreObjects;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.block.Blocks;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.vector.Vector3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.world.server.ServerLevel;
 
 /**
  * Extended version of {@link BlockPos} with additional dimension (and optional world) information.
@@ -79,13 +79,13 @@ public class DimPos extends BlockPos {
 	 * @param z block Z-coord
 	 * @param world the dimension's world
 	 */
-	public DimPos(int x, int y, int z, ServerWorld world) {
+	public DimPos(int x, int y, int z, ServerLevel world) {
 		this(x, y, z, world.dimension());
 		this.world = new WeakReference<>(world);
 	}
 
 	/**@param nbt data */
-	public DimPos(CompoundNBT nbt) {
+	public DimPos(CompoundTag nbt) {
 		this(
 			nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"),
 			RegistryKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(nbt.getString("d")))
@@ -112,13 +112,13 @@ public class DimPos extends BlockPos {
 	}
 
 	/**
-	 * A special version of {@link #getWorld()} for <b> server side use only</b>, that automatically retrieves and assignes the ServerWorld.
+	 * A special version of {@link #getWorld()} for <b> server side use only</b>, that automatically retrieves and assignes the ServerLevel.
 	 * @return the world server associated with this position or null if this dimension id is invalid or the world couldn't be loaded.
 	 */
-	public ServerWorld getServerWorld(World ref) {
+	public ServerLevel getServerLevel(World ref) {
 		World world = this.world.get();
-		if (world instanceof ServerWorld) return (ServerWorld)world;
-		ServerWorld ws = ref.getServer().getLevel(dim);
+		if (world instanceof ServerLevel) return (ServerLevel)world;
+		ServerLevel ws = ref.getServer().getLevel(dim);
 		if (ws != null) this.world = new WeakReference<World>(ws);
 		return ws;
 	}
@@ -199,7 +199,7 @@ public class DimPos extends BlockPos {
 		return world == null || !world.isLoaded(this) ? null : world.getBlockEntity(this);
 	}
 
-	public CompoundNBT write(CompoundNBT nbt) {
+	public CompoundTag write(CompoundTag nbt) {
 		nbt.putInt("x", getX());
 		nbt.putInt("y", getY());
 		nbt.putInt("z", getZ());

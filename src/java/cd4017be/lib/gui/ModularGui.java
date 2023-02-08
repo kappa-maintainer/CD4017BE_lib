@@ -16,11 +16,11 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.util.Direction;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
@@ -338,7 +338,7 @@ public class ModularGui<T extends AdvancedContainer> extends ContainerScreen<T> 
 	 * @param c value to send
 	 */
 	public void sendCommand(int c) {
-		PacketBuffer buff = GuiNetworkHandler.preparePacket(menu);
+		FriendlyByteBuf buff = GuiNetworkHandler.preparePacket(menu);
 		buff.writeByte(c);
 		GuiNetworkHandler.GNH_INSTANCE.sendToServer(buff);
 	}
@@ -349,7 +349,7 @@ public class ModularGui<T extends AdvancedContainer> extends ContainerScreen<T> 
 	 * @param args data to send (supports: byte, short, int, long, float, double, String)
 	 */
 	public void sendPkt(Object... args) {
-		PacketBuffer buff = GuiNetworkHandler.preparePacket(menu);
+		FriendlyByteBuf buff = GuiNetworkHandler.preparePacket(menu);
 		for (Object arg : args) {
 			if (arg instanceof Byte) buff.writeByte((Byte)arg);
 			else if (arg instanceof Short) buff.writeShort((Short)arg);

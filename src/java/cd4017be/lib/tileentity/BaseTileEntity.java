@@ -7,16 +7,16 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import cd4017be.lib.block.OrientedBlock;
-import cd4017be.lib.network.INBTSynchronized;
+import cd4017be.lib.network.TagSynchronized;
 import cd4017be.lib.util.Orientation;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SUpdateTileEntityPacket;
 import net.minecraft.tileentity.*;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -29,7 +29,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import static cd4017be.lib.network.Sync.*;
 
 /** @author CD4017BE */
-public class BaseTileEntity extends TileEntity implements INBTSynchronized {
+public class BaseTileEntity extends TileEntity implements TagSynchronized {
 
 	private Chunk chunk;
 	public boolean unloaded = true;
@@ -72,33 +72,33 @@ public class BaseTileEntity extends TileEntity implements INBTSynchronized {
 	public static final int REDRAW = 16;
 
 	@Override
-	public CompoundNBT save(CompoundNBT nbt) {
+	public CompoundTag save(CompoundTag nbt) {
 		storeState(nbt, SAVE);
 		return super.save(nbt);
 	}
 
 	@Override
-	public void load(BlockState state, CompoundNBT nbt) {
+	public void load(BlockState state, CompoundTag nbt) {
 		super.load(state, nbt);
 		loadState(nbt, SAVE);
 	}
 
 	@Override
-	public CompoundNBT getUpdateTag() {
-		CompoundNBT nbt = super.getUpdateTag();
+	public CompoundTag getUpdateTag() {
+		CompoundTag nbt = super.getUpdateTag();
 		storeState(nbt, CLIENT);
 		return nbt;
 	}
 
 	@Override
-	public void handleUpdateTag(BlockState state, CompoundNBT nbt) {
+	public void handleUpdateTag(BlockState state, CompoundTag nbt) {
 		super.load(state, nbt);
 		loadState(nbt, CLIENT);
 	}
 
 	@Override
 	public SUpdateTileEntityPacket getUpdatePacket() {
-		CompoundNBT nbt = new CompoundNBT();
+		CompoundTag nbt = new CompoundTag();
 		int i = SYNC | (redraw ? REDRAW : 0);
 		storeState(nbt, i);
 		if(nbt.isEmpty()) return null;
@@ -108,7 +108,7 @@ public class BaseTileEntity extends TileEntity implements INBTSynchronized {
 
 	@Override
 	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-		CompoundNBT nbt = pkt.getTag();
+		CompoundTag nbt = pkt.getTag();
 		int i = pkt.getType();
 		loadState(nbt, SYNC | i);
 		if(redraw = (i & REDRAW) != 0) {
@@ -234,12 +234,12 @@ public class BaseTileEntity extends TileEntity implements INBTSynchronized {
 	}
 	
 	protected List<ItemStack> makeDefaultDrops() {
-		CompoundNBT nbt = new CompoundNBT();
+		CompoundTag nbt = new CompoundTag();
 		storeState(nbt, ITEM);
 		return makeDefaultDrops(nbt);
 	}
 	
-	protected List<ItemStack> makeDefaultDrops(CompoundNBT tag) {
+	protected List<ItemStack> makeDefaultDrops(CompoundTag tag) {
 		getBlockState();
 		ItemStack item = new ItemStack(blockType, 1, blockType.damageDropped(blockState));
 		item.setTag(tag);

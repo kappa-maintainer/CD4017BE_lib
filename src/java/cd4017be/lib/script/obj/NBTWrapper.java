@@ -1,7 +1,7 @@
 package cd4017be.lib.script.obj;
 
 import java.util.Iterator;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  * @author CD4017BE
@@ -10,13 +10,13 @@ import net.minecraft.nbt.CompoundNBT;
 public class NBTWrapper implements IOperand {
 
 	private boolean copied;
-	public final CompoundNBT nbt;
+	public final CompoundTag nbt;
 
 	public NBTWrapper() {
-		this.nbt = new CompoundNBT();
+		this.nbt = new CompoundTag();
 	}
 
-	public NBTWrapper(CompoundNBT nbt) {
+	public NBTWrapper(CompoundTag nbt) {
 		this.nbt = nbt;
 	}
 
@@ -57,21 +57,21 @@ public class NBTWrapper implements IOperand {
 
 	@Override
 	public IOperand get(IOperand idx) {
-		INBT tag = nbt.get(idx.toString());
+		Tag tag = nbt.get(idx.toString());
 		return tag == null ? Nil.NIL : expand(tag);
 	}
 
-	private IOperand expand(INBT tag) {
+	private IOperand expand(Tag tag) {
 		switch(tag.getId()) {
-		case NBT.TAG_COMPOUND: return new NBTWrapper((CompoundNBT)tag);
+		case NBT.TAG_COMPOUND: return new NBTWrapper((CompoundTag)tag);
 		case NBT.TAG_LIST: {
-			ListNBT list = (ListNBT)tag;
+			ListTag list = (ListTag)tag;
 			Array a = new Array(list.size());
 			for (int i = 0; i < a.array.length; i++)
 				a.array[i] = expand(list.get(i));
 			return a;
 		}
-		case NBT.TAG_STRING: return new Text(((StringNBT)tag).getString());
+		case NBT.TAG_STRING: return new Text(((StringTag)tag).getString());
 		case NBT.TAG_BYTE_ARRAY: {
 			byte[] arr = ((ByteArrayNBT)tag).getByteArray();
 			Vector v = new Vector(arr.length);
@@ -99,23 +99,23 @@ public class NBTWrapper implements IOperand {
 		if (key.isEmpty()) return;
 		char c = key.charAt(0);
 		key = key.substring(1);
-		INBT tag = val == Nil.NIL ? null : parse(c, val);
+		Tag tag = val == Nil.NIL ? null : parse(c, val);
 		if (tag == null) nbt.remove(key);
 		else nbt.put(key, tag);
 	}
 
-	private INBT parse(char type, IOperand val) {
+	private Tag parse(char type, IOperand val) {
 		if (val instanceof NBTWrapper)
 			return ((NBTWrapper)val).nbt;
 		else if (val instanceof Array) {
-			ListNBT list = new ListNBT();
-			INBT tag;
+			ListTag list = new ListTag();
+			Tag tag;
 			for (IOperand op : ((Array)val).array)
 				if ((tag = parse(type, op)) != null)
 					list.add(tag);
 			return list;
 		} else if (val instanceof Text)
-			return StringNBT.valueOf(val.toString());
+			return StringTag.valueOf(val.toString());
 		else if (val instanceof Vector) {
 			double[] v = ((Vector)val).value;
 			switch(type) {
@@ -139,7 +139,7 @@ public class NBTWrapper implements IOperand {
 			case 'B': return ByteNBT.valueOf((byte)v);
 			case 'S': return ShortNBT.valueOf((short)v);
 			case 'I': return IntNBT.valueOf((int)v);
-			case 'L': return LongNBT.valueOf((long)v);
+			case 'L': return LongTag.valueOf((long)v);
 			case 'F': return FloatNBT.valueOf((float)v);
 			case 'D': return DoubleNBT.valueOf(v);
 			default: return null;

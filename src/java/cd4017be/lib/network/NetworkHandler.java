@@ -58,7 +58,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	@Override
 	public void accept(NetworkEvent e) {
 		if (e instanceof NetworkEvent.ChannelRegistrationChangeEvent) return;
-		PacketBuffer data = e.getPayload();
+		FriendlyByteBuf data = e.getPayload();
 		Context c = e.getSource().get();
 		String source = "UNKNOWN";
 		try {
@@ -82,7 +82,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 		}
 	}
 
-	protected void logError(PacketBuffer buf, String source, Exception e) {
+	protected void logError(FriendlyByteBuf buf, String source, Exception e) {
 		long t = System.currentTimeMillis();
 		if (t - lastErr < LOG_INTERVAL) errCount++;
 		else {
@@ -97,7 +97,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 		}
 	}
 
-	public static void printPacketData(StringBuilder sb, PacketBuffer p) {
+	public static void printPacketData(StringBuilder sb, FriendlyByteBuf p) {
 		int r = p.readerIndex(), l = p.writerIndex();
 		sb.append("read ").append(r).append(" of ").append(l).append(" bytes [");
 		for (int i = 0; i < l; i++)
@@ -105,7 +105,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 		sb.setCharAt(sb.length() - 1, ']');
 	}
 
-	public IPacket<?> packet2C(PacketBuffer data) {
+	public IPacket<?> packet2C(FriendlyByteBuf data) {
 		return NetworkDirection.PLAY_TO_CLIENT.buildPacket(Pair.of(data, 0), channel).getThis();
 	}
 
@@ -114,7 +114,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	 * @param pkt payload
 	 */
 	@OnlyIn(Dist.CLIENT)
-	public void sendToServer(PacketBuffer pkt) {
+	public void sendToServer(FriendlyByteBuf pkt) {
 		Minecraft.getInstance().getConnection().send(
 			NetworkDirection.PLAY_TO_SERVER.buildPacket(Pair.of(pkt, 0), channel).getThis()
 		);
@@ -125,7 +125,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	 * @param pkt payload
 	 * @param player receiver
 	 */
-	public void sendToPlayer(PacketBuffer pkt, ServerPlayerEntity player) {
+	public void sendToPlayer(FriendlyByteBuf pkt, ServerPlayerEntity player) {
 		player.connection.connection.send(packet2C(pkt));
 	}
 
@@ -134,7 +134,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	 * @param pkt payload
 	 * @param players receivers
 	 */
-	public void sendToPlayers(PacketBuffer pkt, Collection<ServerPlayerEntity> players) {
+	public void sendToPlayers(FriendlyByteBuf pkt, Collection<ServerPlayerEntity> players) {
 		IPacket<?> packet = packet2C(pkt);
 		for (ServerPlayerEntity player : players)
 			player.connection.connection.send(packet);
@@ -146,7 +146,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	 * @param pos target location
 	 * @param range [m] maximum (straight) distance away
 	 */
-	public void sendToAllNear(PacketBuffer pkt, DimPos pos, double range) {
+	public void sendToAllNear(FriendlyByteBuf pkt, DimPos pos, double range) {
 		LogicalSidedProvider.INSTANCE.<MinecraftServer>get(LogicalSide.SERVER).getPlayerList().broadcast(
 			null, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, range, pos.dim, packet2C(pkt)
 		);

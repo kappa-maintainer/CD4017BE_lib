@@ -2,7 +2,7 @@ package cd4017be.lib.container;
 
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 
 /**Limits insertion based on underlying inventory.
  * @author CD4017BE */

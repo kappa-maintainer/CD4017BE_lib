@@ -2,26 +2,24 @@ package cd4017be.api.grid;
 
 import static net.minecraftforge.registries.ForgeRegistries.ITEMS;
 
-import cd4017be.lib.network.INBTSynchronized;
+import cd4017be.lib.network.TagSynchronized;
 import cd4017be.lib.render.model.JitBakedModel;
 import cd4017be.lib.util.ItemFluidUtil;
 import cd4017be.math.Orient;
 import it.unimi.dsi.fastutil.shorts.ShortArrays;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 /**Parent class for all microblock devices.
  * @author CD4017BE */
-public abstract class GridPart implements IPortHolder, INBTSynchronized {
+public abstract class GridPart implements IPortHolder, TagSynchronized {
 
 	public IGridHost host;
 	/** filled & 1 << (x + 4*y + 16*z) */
@@ -77,8 +75,8 @@ public abstract class GridPart implements IPortHolder, INBTSynchronized {
 	}
 
 	@Override
-	public void storeState(CompoundNBT nbt, int mode) {
-		INBTSynchronized.super.storeState(nbt, mode);
+	public void storeState(CompoundTag nbt, int mode) {
+		TagSynchronized.super.storeState(nbt, mode);
 		nbt.putString("id", item().getRegistryName().toString());
 	}
 
@@ -120,20 +118,20 @@ public abstract class GridPart implements IPortHolder, INBTSynchronized {
 	 * @param world
 	 * @param pos changed block's postion
 	 * @param dir side of this grid */
-	public void onBlockChange(World world, BlockPos pos, Direction dir) {}
+	public void onBlockChange(Level world, BlockPos pos, Direction dir) {}
 
 	/**when an adjacent TileEntity changes
 	 * @param world
 	 * @param pos changed TE's postion
 	 * @param dir side of this grid */
-	public void onTEChange(World world, BlockPos pos, Direction dir) {}
+	public void onTEChange(Level world, BlockPos pos, Direction dir) {}
 
 	/**When replicated or disassembled in a Microblock Workbench.
 	 * Parts should clear their contents here to prevent resource duplication.
 	 * @param world
 	 * @param pos for dropping items and such
 	 * @return whether data has changed */
-	public boolean dissassemble(World world, BlockPos pos) {return false;}
+	public boolean dissassemble(Level world, BlockPos pos) {return false;}
 
 	/**When merging two grid blocks together
 	 * @param other grid to merge in
@@ -291,7 +289,7 @@ public abstract class GridPart implements IPortHolder, INBTSynchronized {
 	 * @param nbt data
 	 * @param mode sync mode
 	 * @return loaded part */
-	public static GridPart load(GridPart part, CompoundNBT nbt, int mode) {
+	public static GridPart load(GridPart part, CompoundTag nbt, int mode) {
 		Item item = ITEMS.getValue(new ResourceLocation(nbt.getString("id")));
 		if (part == null || part.item() != item)
 			part = item instanceof IGridItem ? ((IGridItem)item).createPart() : null;

@@ -11,8 +11,8 @@ import cd4017be.lib.render.GridModels;
 import cd4017be.lib.render.model.JitBakedModel;
 import cd4017be.lib.util.Orientation;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -61,7 +61,7 @@ public abstract class OrientedPart extends GridPart {
 	}
 
 	@Override
-	public void loadState(CompoundNBT nbt, int mode) {
+	public void loadState(CompoundTag nbt, int mode) {
 		super.loadState(nbt, mode);
 		set(pos, orient);
 	}

@@ -1,7 +1,7 @@
 package cd4017be.lib.capability;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tileentity.TileEntity;
 
 import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY;
@@ -250,7 +250,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 		return output ? need <= cap : need >= 0;
 	}
 
-	public void readNBT(CompoundNBT nbt) {
+	public void readNBT(CompoundTag nbt) {
 		if (fixed) fluid.setAmount(nbt.getInt("Amount"));
 		else {
 			fluid = FluidStack.loadFluidStackFromNBT(nbt);
@@ -260,7 +260,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 		if (cont.getCount() > 0) need = output ? 0 : cap;
 	}
 
-	public CompoundNBT writeNBT(CompoundNBT nbt) {
+	public CompoundTag writeNBT(CompoundTag nbt) {
 		if (fluid.getRawFluid() != Fluids.EMPTY) fluid.writeToNBT(nbt);
 		else nbt.remove("FluidName");
 		if (!cont.isEmpty()) cont.save(nbt);

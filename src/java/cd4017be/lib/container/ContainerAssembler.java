@@ -19,7 +19,7 @@ import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
 import cd4017be.lib.tileentity.Assembler;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,7 +31,7 @@ public class ContainerAssembler extends AdvancedContainer {
 
 	final Assembler tile;
 
-	public ContainerAssembler(int id, PlayerInventory inv, PacketBuffer buf) {
+	public ContainerAssembler(int id, PlayerInventory inv, FriendlyByteBuf buf) {
 		this(id, inv, null, Assembler.class);
 	}
 

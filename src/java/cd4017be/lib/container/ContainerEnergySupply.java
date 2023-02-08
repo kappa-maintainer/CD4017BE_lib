@@ -12,7 +12,7 @@ import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
 import cd4017be.lib.tileentity.EnergySupply;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -21,7 +21,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 /** @author CD4017BE */
 public class ContainerEnergySupply extends AdvancedContainer {
 
-	public ContainerEnergySupply(int id, PlayerInventory inv, PacketBuffer pkt) {
+	public ContainerEnergySupply(int id, PlayerInventory inv, FriendlyByteBuf pkt) {
 		super(eNERGY_SUPP, id, inv, StateSyncAdv.of(true, EnergySupply.class), 0);
 	}
 

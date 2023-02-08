@@ -17,7 +17,7 @@ import cd4017be.lib.network.StateSyncAdv;
 import cd4017be.lib.tileentity.ItemSupply;
 import cd4017be.lib.tileentity.ItemSupply.Slot;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -28,7 +28,7 @@ public class ContainerItemSupply extends AdvancedContainer {
 
 	private static final int[] indices = StateSyncAdv.array(8, 12);
 
-	public ContainerItemSupply(int id, PlayerInventory inv, PacketBuffer pkt) {
+	public ContainerItemSupply(int id, PlayerInventory inv, FriendlyByteBuf pkt) {
 		this(id, inv, new BasicInventory(12), true, ItemSupply.class);
 	}
 

@@ -7,7 +7,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.block.Blocks;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
 
 /**
  *
@@ -18,10 +18,10 @@ public class MovedBlock {
 
 	public static final MovedBlock AIR = new MovedBlock(Blocks.AIR.defaultBlockState(), null);
 
-	public final CompoundNBT nbt;
+	public final CompoundTag nbt;
 	public final BlockState block;
 
-	public MovedBlock(BlockState block, CompoundNBT tile) {
+	public MovedBlock(BlockState block, CompoundTag tile) {
 		this.block = block;
 		this.nbt = tile;
 	}
@@ -35,12 +35,12 @@ public class MovedBlock {
 	 * @return captured block data to {@link #paste} somewhere else
 	 * @throws ConcurrentModificationException if called during TileEntity update ticks!
 	 */
-	public static MovedBlock cut(DimPos pos, @Nullable Map<DimPos, CompoundNBT> addedTileEntities) {
+	public static MovedBlock cut(DimPos pos, @Nullable Map<DimPos, CompoundTag> addedTileEntities) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
-		World world = pos.getServerWorld();//force load dimension
+		World world = pos.getServerLevel();//force load dimension
 		Chunk chunk = world.getChunkFromBlockCoords(pos);//force load chunk
-		CompoundNBT nbt;
+		CompoundTag nbt;
 		TileEntity te = chunk.getTileEntityMap().remove(pos);
 		if (te == null)
 			nbt = addedTileEntities != null ? addedTileEntities.remove(pos) : null;
@@ -62,7 +62,7 @@ public class MovedBlock {
 	 * So they can be added all in one go later on.
 	 * @return whether the paste was successful (only fails for invalid coordinates or chunk data problems)
 	 */
-	public boolean paste(DimPos pos, @Nullable Map<DimPos, CompoundNBT> addedTileEntities) {
+	public boolean paste(DimPos pos, @Nullable Map<DimPos, CompoundTag> addedTileEntities) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
 		World world = pos.getWorld();
@@ -132,12 +132,12 @@ public class MovedBlock {
 		return true;*/
 	}
 
-	public static void addTileEntities(Map<DimPos, CompoundNBT> addedTileEntities) {
+	public static void addTileEntities(Map<DimPos, CompoundTag> addedTileEntities) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
-		for (Entry<DimPos, CompoundNBT> e : addedTileEntities.entrySet()) {
+		for (Entry<DimPos, CompoundTag> e : addedTileEntities.entrySet()) {
 			DimPos pos = e.getKey();
-			CompoundNBT nbt = e.getValue();
+			CompoundTag nbt = e.getValue();
 			nbt.putInt("x", pos.getX());
 			nbt.putInt("y", pos.getY());
 			nbt.putInt("z", pos.getZ());
@@ -192,9 +192,9 @@ public class MovedBlock {
 	public static ServerPlayerEntity transferPlayer(ServerPlayerEntity player, int dimN, double x, double y, double z) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
-		ServerWorld worldO = (ServerWorld)player.world;
+		ServerLevel worldO = (ServerLevel)player.world;
 		MinecraftServer server = worldO.getMinecraftServer();
-		ServerWorld worldN = server.getWorld(dimN);
+		ServerLevel worldN = server.getWorld(dimN);
 		PlayerList pl = server.getPlayerList();
 		int dimO = player.dimension;
 		
@@ -240,16 +240,16 @@ public class MovedBlock {
 		entityO.isDead = false;
 		
 		entityO.world.profiler.startSection("reposition");
-		ServerWorld worldO = (ServerWorld)entityO.world;
+		ServerLevel worldO = (ServerLevel)entityO.world;
 		entityO.setLocationAndAngles(x, y, z, entityO.rotationYaw, entityO.rotationPitch);
 		worldO.updateEntityWithOptionalForce(entityO, false);
 		
 		entityO.world.profiler.endStartSection("reloading");
 		MinecraftServer server = worldO.getMinecraftServer();
-		ServerWorld worldN = server.getWorld(dimN);
+		ServerLevel worldN = server.getWorld(dimN);
 		Entity entityN = EntityList.newEntity(entityO.getClass(), worldN);
 		if (entityN != null) {
-			CompoundNBT nbttagcompound = entityO.writeToNBT(new CompoundNBT());
+			CompoundTag nbttagcompound = entityO.writeToNBT(new CompoundTag());
 			nbttagcompound.remove("Dimension");
 			entityN.readFromNBT(nbttagcompound);
 			

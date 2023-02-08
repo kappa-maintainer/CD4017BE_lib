@@ -12,7 +12,7 @@ import cd4017be.lib.text.TooltipUtil;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 
 /**
  * A button used to select a block face (for side configuration of machines). Shows the block preview on the side of the screen when hovered.

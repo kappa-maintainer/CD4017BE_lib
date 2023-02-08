@@ -11,7 +11,7 @@ import cd4017be.lib.tick.IGate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -64,7 +64,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	}
 
 	@Override
-	public void handlePlayerPacket(PacketBuffer pkt, ServerPlayerEntity sender) {
+	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) {
 		if (!sender.isAlive() || watching.contains(sender)) return;
 		watching.add(sender);
 		SyncNetworkHandler.instance.sendToPlayer(makeSyncPacket(true), sender);
@@ -72,7 +72,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handleServerPacket(PacketBuffer pkt) throws Exception {
+	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		byte n = pkt.readByte();
 		if (n == 0) update = false;
 		else readSync(pkt, n);
@@ -86,7 +86,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 				player.getX(), player.getY(), player.getZ(), true
 			) < SERVER_RANGE) continue;
 			watching.remove(i);
-			PacketBuffer pkt = SyncNetworkHandler.preparePacket(this);
+			FriendlyByteBuf pkt = SyncNetworkHandler.preparePacket(this);
 			pkt.writeByte(0);
 			SyncNetworkHandler.instance.sendToPlayer(pkt, player);
 		}
@@ -95,8 +95,8 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		return false;
 	}
 
-	private PacketBuffer makeSyncPacket(boolean full) {
-		PacketBuffer pkt = SyncNetworkHandler.preparePacket(this);
+	private FriendlyByteBuf makeSyncPacket(boolean full) {
+		FriendlyByteBuf pkt = SyncNetworkHandler.preparePacket(this);
 		int p = pkt.writerIndex();
 		pkt.writeByte(0);
 		pkt.setByte(p, writeSync(pkt, full));
@@ -106,10 +106,10 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	/**@param pkt packet to write
 	 * @param init whether this is the initial transmission
 	 * @return first byte != 0 */
-	protected abstract byte writeSync(PacketBuffer pkt, boolean init);
+	protected abstract byte writeSync(FriendlyByteBuf pkt, boolean init);
 
 	/**@param pkt packet to read
 	 * @param n first byte != 0 */
-	protected abstract void readSync(PacketBuffer pkt, byte n);
+	protected abstract void readSync(FriendlyByteBuf pkt, byte n);
 
 }

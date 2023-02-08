@@ -16,7 +16,7 @@ import cd4017be.lib.render.model.JitBakedModel;
 import cd4017be.lib.util.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.*;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.data.EmptyModelData;
 

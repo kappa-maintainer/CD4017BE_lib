@@ -10,10 +10,10 @@ import cd4017be.lib.util.ItemFluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.world.EmptyBlockReader;
 import net.minecraftforge.api.distmarker.Dist;
@@ -23,13 +23,13 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class MicroBlock extends GridPart {
 
 	public BlockState block;
-	private CompoundNBT tag;
+	private CompoundTag tag;
 
 	public MicroBlock() {
 		super(0);
 	}
 
-	public MicroBlock(BlockState block, CompoundNBT tag, long bounds) {
+	public MicroBlock(BlockState block, CompoundTag tag, long bounds) {
 		this();
 		this.block = block;
 		this.tag = tag;
@@ -37,7 +37,7 @@ public class MicroBlock extends GridPart {
 	}
 
 	@Override
-	public void storeState(CompoundNBT nbt, int mode) {
+	public void storeState(CompoundTag nbt, int mode) {
 		super.storeState(nbt, mode);
 		nbt.putLong("m", bounds);
 		nbt.putInt("s", Block.getId(block));
@@ -46,7 +46,7 @@ public class MicroBlock extends GridPart {
 	}
 
 	@Override
-	public void loadState(CompoundNBT nbt, int mode) {
+	public void loadState(CompoundTag nbt, int mode) {
 		super.loadState(nbt, mode);
 		bounds = nbt.getLong("m");
 		block = Block.stateById(nbt.getInt("s"));

@@ -9,15 +9,15 @@ import cd4017be.lib.container.ContainerFluidSupply;
 import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.IPlayerPacketReceiver;
 import cd4017be.lib.network.Sync;
-import net.minecraft.nbt.INBT;
+import net.minecraft.nbt.Tag;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.Direction;
+import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
@@ -121,11 +121,11 @@ implements IMultiFluidHandler, IUnnamedContainerProvider, IPlayerPacketReceiver 
 	}
 
 	@Override
-	public void storeState(CompoundNBT nbt, int mode) {
+	public void storeState(CompoundTag nbt, int mode) {
 		super.storeState(nbt, mode);
-		ListNBT list = new ListNBT();
+		ListTag list = new ListTag();
 		for(Slot s : slots) {
-			CompoundNBT tag = s.stack.writeToNBT(new CompoundNBT());
+			CompoundTag tag = s.stack.writeToNBT(new CompoundTag());
 			tag.putInt("in", s.countIn);
 			tag.putInt("out", s.countOut);
 			list.add(tag);
@@ -134,11 +134,11 @@ implements IMultiFluidHandler, IUnnamedContainerProvider, IPlayerPacketReceiver 
 	}
 
 	@Override
-	public void loadState(CompoundNBT nbt, int mode) {
+	public void loadState(CompoundTag nbt, int mode) {
 		super.loadState(nbt, mode);
 		slots.clear();
-		for(INBT tb : nbt.getList("slots", NBT.TAG_COMPOUND)) {
-			CompoundNBT tag = (CompoundNBT)tb;
+		for(Tag tb : nbt.getList("slots", NBT.TAG_COMPOUND)) {
+			CompoundTag tag = (CompoundTag)tb;
 			Slot s = new Slot(FluidStack.loadFluidStackFromNBT(tag));
 			s.countIn = tag.getInt("in");
 			s.countOut = tag.getInt("out");
@@ -152,7 +152,7 @@ implements IMultiFluidHandler, IUnnamedContainerProvider, IPlayerPacketReceiver 
 	}
 
 	@Override
-	public void handlePlayerPacket(PacketBuffer pkt, ServerPlayerEntity sender)
+	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		int cmd = pkt.readByte();
 		if (cmd < 0) {

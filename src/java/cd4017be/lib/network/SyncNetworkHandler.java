@@ -15,12 +15,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.EventPriority;
@@ -59,11 +59,11 @@ public class SyncNetworkHandler extends NetworkHandler {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handleServerPacket(PacketBuffer pkt) throws Exception {
+	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		Minecraft mc = Minecraft.getInstance();
 		World world = mc.level;
 		ClientPlayerEntity player = mc.player;
-		for (PacketBuffer buf : new PacketSplitter(pkt)) {
+		for (FriendlyByteBuf buf : new PacketSplitter(pkt)) {
 			BlockPos target = buf.readBlockPos();
 			int y = target.getY();
 			if (y >= Y_TILEENTITY) {
@@ -86,9 +86,9 @@ public class SyncNetworkHandler extends NetworkHandler {
 	}
 
 	@Override
-	public void handlePlayerPacket(PacketBuffer pkt, ServerPlayerEntity sender) throws Exception {
+	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
 		World world = sender.level;
-		for (PacketBuffer buf : new PacketSplitter(pkt)) {//TODO chained packets don't make much sense on client -> server
+		for (FriendlyByteBuf buf : new PacketSplitter(pkt)) {//TODO chained packets don't make much sense on client -> server
 			BlockPos target = buf.readBlockPos();
 			int y = target.getY();
 			if (y >= Y_TILEENTITY) {
@@ -114,7 +114,7 @@ public class SyncNetworkHandler extends NetworkHandler {
 	public void tick(ServerTickEvent event) {
 		if (event.phase != Phase.END || chainedPackets.isEmpty()) return;
 		for (Entry<ServerPlayerEntity, ByteBuf> e : chainedPackets.entrySet())
-			super.sendToPlayer(new PacketBuffer(e.getValue()), e.getKey());
+			super.sendToPlayer(new FriendlyByteBuf(e.getValue()), e.getKey());
 		chainedPackets.clear();
 	}
 
@@ -124,13 +124,13 @@ public class SyncNetworkHandler extends NetworkHandler {
 	}
 
 	@Override
-	public void sendToPlayer(PacketBuffer pkt, ServerPlayerEntity player) {
+	public void sendToPlayer(FriendlyByteBuf pkt, ServerPlayerEntity player) {
 		if (pkt.readableBytes() <= MAX_PACKSIZE) addPacket(pkt, player);
 		else super.sendToPlayer(pkt, player);
 	}
 
 	@Override
-	public void sendToPlayers(PacketBuffer pkt, Collection<ServerPlayerEntity> players) {
+	public void sendToPlayers(FriendlyByteBuf pkt, Collection<ServerPlayerEntity> players) {
 		int l = pkt.readableBytes();
 		if (l > MAX_PACKSIZE) super.sendToPlayers(pkt, players);
 		else {
@@ -143,8 +143,8 @@ public class SyncNetworkHandler extends NetworkHandler {
 		}
 	}
 
-	public static PacketBuffer preparePacket(BlockPos pos) {
-		PacketBuffer pkt = new PacketBuffer(Unpooled.buffer());
+	public static FriendlyByteBuf preparePacket(BlockPos pos) {
+		FriendlyByteBuf pkt = new FriendlyByteBuf(Unpooled.buffer());
 		pkt.writeByte(0);
 		pkt.writeLong(pos.asLong());
 		return pkt;
@@ -152,52 +152,52 @@ public class SyncNetworkHandler extends NetworkHandler {
 
 	/**
 	 * @param tile the TileEntity to send to (on the other side)
-	 * @return a new PacketBuffer with prepared header
-	 * @see IServerPacketReceiver#handleServerPacket(PacketBuffer)
-	 * @see IPlayerPacketReceiver#handlePlayerPacket(PacketBuffer, ServerPlayerEntity)
+	 * @return a new FriendlyByteBuf with prepared header
+	 * @see IServerPacketReceiver#handleServerPacket(FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver#handlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static PacketBuffer preparePacket(TileEntity tile) {
+	public static FriendlyByteBuf preparePacket(TileEntity tile) {
 		return preparePacket(tile.getBlockPos());
 	}
 
 	/**
 	 * @param entity the Entity to send to (on the other side)
-	 * @return a new PacketBuffer with prepared header
-	 * @see IServerPacketReceiver#handleServerPacket(PacketBuffer)
-	 * @see IPlayerPacketReceiver#handlePlayerPacket(PacketBuffer, ServerPlayerEntity)
+	 * @return a new FriendlyByteBuf with prepared header
+	 * @see IServerPacketReceiver#handleServerPacket(FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver#handlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static PacketBuffer preparePacket(Entity entity) {
+	public static FriendlyByteBuf preparePacket(Entity entity) {
 		int id = entity.getId();
 		return preparePacket(new BlockPos(id & 0xffff, Y_ENTITY, id >> 16 & 0xffff));
 	}
 
 	/**
 	 * @param slot the player inventory slot to send to
-	 * @return a new PacketBuffer with prepared header
-	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, PacketBuffer)
-	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, PacketBuffer, ServerPlayerEntity)
+	 * @return a new FriendlyByteBuf with prepared header
+	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static PacketBuffer preparePacket(int slot) {
+	public static FriendlyByteBuf preparePacket(int slot) {
 		return preparePacket(new BlockPos(slot, Y_ITEM, 0));
 	}
 
 	/**
 	 * @param player the player holding the item
 	 * @param hand the held item to send to
-	 * @return a new PacketBuffer with prepared header
-	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, PacketBuffer)
-	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, PacketBuffer, ServerPlayerEntity)
+	 * @return a new FriendlyByteBuf with prepared header
+	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static PacketBuffer preparePacket(PlayerEntity player, Hand hand) {
+	public static FriendlyByteBuf preparePacket(PlayerEntity player, Hand hand) {
 		return preparePacket(new BlockPos(hand == Hand.MAIN_HAND ? 40 : player.inventory.selected, Y_ITEM, 0));
 	}
 
-	static class PacketSplitter implements Iterable<PacketBuffer>, Iterator<PacketBuffer> {
+	static class PacketSplitter implements Iterable<FriendlyByteBuf>, Iterator<FriendlyByteBuf> {
 
-		final PacketBuffer pkt;
+		final FriendlyByteBuf pkt;
 		boolean hasNext = true;
 
-		public PacketSplitter(PacketBuffer pkt) {
+		public PacketSplitter(FriendlyByteBuf pkt) {
 			this.pkt = pkt;
 		}
 
@@ -207,7 +207,7 @@ public class SyncNetworkHandler extends NetworkHandler {
 		}
 
 		@Override
-		public PacketBuffer next() {
+		public FriendlyByteBuf next() {
 			int size = pkt.readUnsignedByte();
 			if (size == 0) {
 				hasNext = false;
@@ -216,12 +216,12 @@ public class SyncNetworkHandler extends NetworkHandler {
 				size += HEADERSIZE - 1;
 				int p = pkt.readerIndex();
 				hasNext = pkt.readerIndex(p + size).isReadable();
-				return new PacketBuffer(pkt.slice(p, size));
+				return new FriendlyByteBuf(pkt.slice(p, size));
 			}
 		}
 
 		@Override
-		public Iterator<PacketBuffer> iterator() {
+		public Iterator<FriendlyByteBuf> iterator() {
 			pkt.readerIndex(0);
 			hasNext = true;
 			return this;

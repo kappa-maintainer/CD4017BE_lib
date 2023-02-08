@@ -17,10 +17,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.*;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.PacketBuffer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
@@ -221,7 +221,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		detectChanges(sync.clear());
 		sync.detectChanges();
 		if(!sync.isEmpty()) {
-			PacketBuffer pkt = preparePacket(this);
+			FriendlyByteBuf pkt = preparePacket(this);
 			sync.write(pkt);
 			writeChanges(sync.set, pkt);
 			sync.writeChanges(pkt);
@@ -247,7 +247,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		}
 	}
 
-	protected void writeChanges(BitSet chng, PacketBuffer pkt) {
+	protected void writeChanges(BitSet chng, FriendlyByteBuf pkt) {
 		int i0 = sync.objIdxOfs();
 		for (int i = chng.nextSetBit(i0); i > 0 && i - i0 < idxCount; i = chng.nextSetBit(i + 1)) {
 			Object o = sync.get(i - i0);
@@ -258,7 +258,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		}
 	}
 
-	protected void readChanges(BitSet chng, PacketBuffer pkt) throws Exception {
+	protected void readChanges(BitSet chng, FriendlyByteBuf pkt) throws Exception {
 		BitSet slots = syncSlots;
 		for (int i = slots.nextSetBit(0), j = sync.objIdxOfs(); i >= 0; i = slots.nextSetBit(i + 1), j++)
 			if (chng.get(j)) {
@@ -284,13 +284,13 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	}
 
 	@Override
-	public void handleServerPacket(PacketBuffer pkt) throws Exception {
+	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		readChanges(sync.read(pkt), pkt);
 		sync.readChanges(pkt);
 	}
 
 	@Override
-	public void handlePlayerPacket(PacketBuffer pkt, ServerPlayerEntity sender)
+	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		for(Object e : sync.holders)
 			if(e instanceof IPlayerPacketReceiver) {

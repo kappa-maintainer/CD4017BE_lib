@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.function.Supplier;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.text.*;
 
 /**Item that shows extra description in tooltip.
