@@ -28,7 +28,7 @@ implements DoubleSupplier, DoubleConsumer {
 	 * @param x initial X-coord
 	 * @param y initial Y-coord
 	 * @param n maximum number of elements displayed at once
-	 * @param action select action handler: function(this, index) */
+	 * @param action select action InteractionHandler: function(this, index) */
 	public GuiList(
 		GuiCompGroup parent, int w, int h, int x, int y, int n,
 		ObjIntConsumer<GuiList> action

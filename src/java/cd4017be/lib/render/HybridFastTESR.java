@@ -3,7 +3,7 @@ package cd4017be.lib.render;
 import net.minecraft.client.Minecraft;
 
 import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -19,10 +19,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public class HybridFastTESR {
 
 	/**
-	 * @param te the TileEntity
-	 * @return whether the player currently aims at the given TileEntity
+	 * @param te the BlockEntity
+	 * @return whether the player currently aims at the given BlockEntity
 	 */
-	public static boolean isAimedAt(TileEntity te) {
+	public static boolean isAimedAt(BlockEntity te) {
 		@SuppressWarnings("resource")
 		RayTraceResult rts = Minecraft.getInstance().hitResult;
 		return rts instanceof BlockRayTraceResult
@@ -30,11 +30,11 @@ public class HybridFastTESR {
 	}
 
 	/**
-	 * @param te the TileEntity
+	 * @param te the BlockEntity
 	 * @param range maximum distance in blocks
-	 * @return whether given TileEntity is within given distance to the camera
+	 * @return whether given BlockEntity is within given distance to the camera
 	 */
-	public static boolean isWithinRange(TileEntity te, double range) {
+	public static boolean isWithinRange(BlockEntity te, double range) {
 		EntityRendererManager rm = Minecraft.getInstance().getEntityRenderDispatcher();
 		BlockPos pos = te.getBlockPos();
 		return rm.distanceToSqr(

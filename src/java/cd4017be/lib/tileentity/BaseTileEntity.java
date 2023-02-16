@@ -1,4 +1,4 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import static java.lang.Double.NaN;
 
@@ -14,8 +14,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.*;
+import net.minecraft.network.play.server.SUpdateBlockEntityPacket;
+import net.minecraft.BlockEntity.*;
 import net.minecraft.core.Direction;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -29,17 +29,17 @@ import net.minecraftforge.common.util.LazyOptional;
 import static cd4017be.lib.network.Sync.*;
 
 /** @author CD4017BE */
-public class BaseTileEntity extends TileEntity implements TagSynchronized {
+public class BaseBlockEntity extends BlockEntity implements TagSynchronized {
 
 	private Chunk chunk;
 	public boolean unloaded = true;
 	protected boolean redraw, sent;
 
-	public BaseTileEntity(TileEntityType<?> type) {
+	public BaseBlockEntity(BlockEntityType<?> type) {
 		super(type);
 	}
 
-	/** whether this TileEntity is currently not part of the loaded world and therefore shouldn't perform any actions */
+	/** whether this BlockEntity is currently not part of the loaded world and therefore shouldn't perform any actions */
 	public boolean unloaded() {
 		return unloaded;
 	}
@@ -50,14 +50,14 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 		return chunk;
 	}
 
-	/** Tells the game that this TileEntity has changed state that needs saving to disk. */
+	/** Tells the game that this BlockEntity has changed state that needs saving to disk. */
 	public void saveDirty() {
 		if (unloaded) return;
 		Chunk c = getChunk();
 		if(c != null) c.markUnsaved();
 	}
 
-	/** Tells the game that this TileEntity has changed state that needs to be sent to clients.
+	/** Tells the game that this BlockEntity has changed state that needs to be sent to clients.
 	 * @param redraw whether client should do render update as well */
 	public void clientDirty(boolean redraw) {
 		if(unloaded) return;
@@ -91,23 +91,23 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 	}
 
 	@Override
-	public void handleUpdateTag(BlockState state, CompoundTag nbt) {
+	public void InteractionHandleUpdateTag(BlockState state, CompoundTag nbt) {
 		super.load(state, nbt);
 		loadState(nbt, CLIENT);
 	}
 
 	@Override
-	public SUpdateTileEntityPacket getUpdatePacket() {
+	public SUpdateBlockEntityPacket getUpdatePacket() {
 		CompoundTag nbt = new CompoundTag();
 		int i = SYNC | (redraw ? REDRAW : 0);
 		storeState(nbt, i);
 		if(nbt.isEmpty()) return null;
 		sent = true;
-		return new SUpdateTileEntityPacket(worldPosition, i, nbt);
+		return new SUpdateBlockEntityPacket(worldPosition, i, nbt);
 	}
 
 	@Override
-	public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
+	public void onDataPacket(NetworkManager net, SUpdateBlockEntityPacket pkt) {
 		CompoundTag nbt = pkt.getTag();
 		int i = pkt.getType();
 		loadState(nbt, SYNC | i);
@@ -126,7 +126,7 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 		unloaded = false;
 	}
 
-	/** Called when this TileEntity is removed from the world be it by breaking, replacement or chunk unloading. */
+	/** Called when this BlockEntity is removed from the world be it by breaking, replacement or chunk unloading. */
 	protected void onUnload() {}
 
 	@Override
@@ -186,15 +186,15 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 	 * for <b>pos</b> within the same chunk.
 	 * @param pos
 	 * @param loadChunks whether to hot-load chunks if necessary
-	 * @return the TileEntity at <b>pos</b> */
-	public @Nullable TileEntity getTileEntity(BlockPos pos, boolean loadChunks) {
+	 * @return the BlockEntity at <b>pos</b> */
+	public @Nullable BlockEntity getBlockEntity(BlockPos pos, boolean loadChunks) {
 		if(World.isOutsideBuildHeight(pos)) return null;
 		Chunk c = getChunk(pos, loadChunks);
 		return c != null ? c.getBlockEntity(pos, CreateEntityType.IMMEDIATE) : null;
 	}
 
-	public @Nullable TileEntity getNeighborTileEntity(Direction side, boolean loadChunks) {
-		return getTileEntity(worldPosition.relative(side), loadChunks);
+	public @Nullable BlockEntity getNeighborBlockEntity(Direction side, boolean loadChunks) {
+		return getBlockEntity(worldPosition.relative(side), loadChunks);
 	}
 
 	/**
@@ -202,12 +202,12 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 	 * @param cap the capability type
 	 * @return capability */
 	public <T> T getNeighborCapability(Direction side, Capability<T> cap, T empty) {
-		TileEntity te = getTileEntity(worldPosition.relative(side), false);
+		BlockEntity te = getBlockEntity(worldPosition.relative(side), false);
 		return te != null ? te.getCapability(cap, side.getOpposite()).orElse(empty) : empty;
 	}
 
 	public <T> boolean updateNeighborCapability(Direction side, Capability<T> cap, Consumer<T> cache, T empty) {
-		TileEntity te = getTileEntity(worldPosition.relative(side), false);
+		BlockEntity te = getBlockEntity(worldPosition.relative(side), false);
 		if (te == null) {
 			cache.accept(empty);
 			return false;
@@ -258,13 +258,13 @@ public class BaseTileEntity extends TileEntity implements TagSynchronized {
 	}
 	*/
 
-	/** Indicates that the implementing TileEntity should only receive server side update ticks.
+	/** Indicates that the implementing BlockEntity should only receive server side update ticks.
 	 * @author CD4017BE */
-	public interface ITickableServerOnly extends ITickableTileEntity {}
+	public interface ITickableServerOnly extends ITickableBlockEntity {}
 
 
-	/** Indicates that the implementing TileEntity should only receive client side update ticks.
+	/** Indicates that the implementing BlockEntity should only receive client side update ticks.
 	 * @author CD4017BE */
-	public interface ITickableClientOnly extends ITickableTileEntity {}
+	public interface ITickableClientOnly extends ITickableBlockEntity {}
 
 }

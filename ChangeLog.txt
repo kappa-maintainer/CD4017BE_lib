@@ -45,12 +45,12 @@ v7.0.2: (private build)
 - add placement event to BlockTE
 - add dynamic part rendering
 - fix HoloSlot stacking
-- add disassemble/replication handling for part contents
+- add disassemble/replication InteractionHandling for part contents
 
 v7.0.0: (private build)
 - port to MC 1.16.5
 - script models now using the new custom json loader system
-- added more convenient TileEntity models using the new ModelData system
+- added more convenient BlockEntity models using the new ModelData system
 - implemented fluid slots using re-purposed fake item slots
 - entirely removed config script system
 - config values can be passed to Documented(Block)Item for use as arguments in extended tool-tips
@@ -63,7 +63,7 @@ v6.6.3:
 - fix cover placements acting on client side
 
 v6.6.2:
-- ensure BlockState in BaseTileEntity is cached as soon as available to fix issues with devices accessing block info during/after unload
+- ensure BlockState in BaseBlockEntity is cached as soon as available to fix issues with devices accessing block info during/after unload
 - change micro unit prefix to 'μ'
 
 v6.6.1:
@@ -80,7 +80,7 @@ Changes:
 - add frame timer for implementing fake motion blur
 - add ingredient indexing in recipe iterator (script)
 - fix item stack size changes in script write through to recipe
-- fix AdvancedBlock support not having TileEntity
+- fix AdvancedBlock support not having BlockEntity
 - let IndexedSet transfer elements on addAll
 - fix side only issue on Energy, Fluid & ItemSupply
 - fix missing particle texture in BlockMimicModel
@@ -96,7 +96,7 @@ v6.5.1
 Changes:
 - added some public access methods to Signal Link API
 - added item nbt utility functions
-- added NullEnergyStorage implementation and BlockReference NOP Handler
+- added NullEnergyStorage implementation and BlockReference NOP InteractionHandler
 - made MountedPort hit-boxes slightly smaller
 - fixed code safety verifier (for runtime loaded/generated classes) to account for long/double using 2 CPT entries
 - added useful creative resource supplies (item, fluid, energy) for testing
@@ -107,9 +107,9 @@ Dependencies:
 
 v6.5.0
 Changes:
-- fixed crashes by improved Link ID collision handling
+- fixed crashes by improved Link ID collision InteractionHandling
 - improved Signal Link ID persistence
-- extended invalid TileEntity load state fix and debug
+- extended invalid BlockEntity load state fix and debug
 - fixed text formatting issues in File Browser
 - modified Redstone Control API for teleport compatibility
 - improved block teleportation utility functions
@@ -165,7 +165,7 @@ Changes:
 - fixed formatted text disappearing behind background sprites
 - fixed packet decoding bugs in State Synchronizer
 - implemented Holo Slots in new container system
-- added Fluid utilities including IFluidHandler implementation for fluid block interaction
+- added Fluid utilities including IFluidInteractionHandler implementation for fluid block interaction
 - limited BlockReference life span to prevent loop capture exploits [Redstone Control]
 
 Dependencies:
@@ -174,7 +174,7 @@ Dependencies:
 
 v6.4.13
 Changes:
-- fix potential null-pointer crash when TileEntity added during world tick
+- fix potential null-pointer crash when BlockEntity added during world tick
 - fix bad state synchronizer state when not sending packets (potentially leading to crashes)
 - add utility: player armor slots
 
@@ -193,7 +193,7 @@ Dependencies:
 
 v6.4.11
 Changes:
-- allow multiple blocks to use the same TileEntity class
+- allow multiple blocks to use the same BlockEntity class
 - make BlockReference (RedstoneControl API) NBTSerializable and fix potential world memory leak
 - fixed reverse inc/dec buttons in horizontal mode of Spinner gui element
 
@@ -223,7 +223,7 @@ Changes:
 - added template class for sound events
 - moved block cover implementation to AdvancedBlock (so blocks could simultaneously be coverable and have other features like oriented)
 - add support for non full block covers (including correct collision)
-- Redstone Control API: added method for connectors to handle port relocation
+- Redstone Control API: added method for connectors to InteractionHandle port relocation
 
 Dependencies:
 - for MC-1.12.2
@@ -237,7 +237,7 @@ Changes:
 - changes in RedstoneControl API
 - fixed line separator in lang file depending on platform
 - fixed vertex packaging in IntArrayModels
-- fixed TileEntity duplicate load event
+- fixed BlockEntity duplicate load event
 
 Dependencies:
 - for MC-1.12.2
@@ -279,8 +279,8 @@ Changes:
 - fixed the TextureStitchEvent issue: this library now comes with its own type of TextureMap and matching TextureStitchEvent for modded use
 - several fixes and improvements for ModularGui and its components
 - added utilities for state synchronization via network packets
-- added a new better network packet handling system
-- added a new Gui & Container handling system
+- added a new better network packet InteractionHandling system
+- added a new Gui & Container InteractionHandling system
 - the old network/gui system became deprecated but should still be fully backwards compatible
 
 Dependencies:
@@ -291,7 +291,7 @@ v6.4.2
 Changes:
 - fixed gui component positioning
 - tweaked white-listing of array types in runtime classloading "fire-wall"
-- added itemstack mode for BaseTileEntity's state load/store utility
+- added itemstack mode for BaseBlockEntity's state load/store utility
 
 Dependencies:
 - for MC-1.12.2
@@ -310,7 +310,7 @@ Changes:
 - added some utility features
 - added hideable inventory slots
 - added TextureAtlasSprite impl. that supports non square aspect ratios
-- added convenient load/store state methods in BaseTileEntity
+- added convenient load/store state methods in BaseBlockEntity
 - generalized MultipartModel so it can be applied to arbitrary blocks
 - enhanced state mapping and model providers for the MultipartModel
 
@@ -331,7 +331,7 @@ v6.3.6
 Changes:
 - changed the script '#' operator for numbers to be floor rounding instead of RNG
 - added some more render utility functions
-- fixed handling of null Boundingboxes in MultipartBlock
+- fixed InteractionHandling of null Boundingboxes in MultipartBlock
 - added a Hybrid implementation between normal and fast TESR
 - some other useful tweaks
 - fixed config version check crashing if file is empty
@@ -380,7 +380,7 @@ v6.3.1
 Changes:
 - fixed config version being ignored which caused it to be permanently overriden by the internal preset
 - fixed rendering bugs in Modular Gui system
-- fixed tootip handling in Modular Gui system
+- fixed tootip InteractionHandling in Modular Gui system
 - added sub window features for Modular Gui system
 - added runtime class generation utilities
 
@@ -416,7 +416,7 @@ Changes:
 - implemented literal direct mode in localisation utilites
 - created combined World/dimension + BlockPos utility object
 - fixed interdimensional teleportation for entities with passengers
-- added optional dimension parameter to "worldgen" script recipe handler
+- added optional dimension parameter to "worldgen" script recipe InteractionHandler
 Dependencies:
 - for MC-1.12.2
 - forge-14.23.0.2512 (or newer)
@@ -486,7 +486,7 @@ Dependencies:
 v6.2.0
 Changes:
 - fixed GUI titles using Item name instead of own locstring
-- changed internal neighbor event system in order to get rid of some TileEntity invalidation hacking that could potentially have had problematic side effects.
+- changed internal neighbor event system in order to get rid of some BlockEntity invalidation hacking that could potentially have had problematic side effects.
 - fixed certain TileEntities running into ploblems with forge's dormant chunk caching.
 Dependencies:
 - for MC-1.12.2
@@ -601,7 +601,7 @@ Changes:
 - supporting usage of more abstract Inventories for Item-GUIs- fixed some serious item multiplication bugs
 - fixed HoloSlot dragging
 - fixed lightning bug in side config overlay
-- fixed some problems with TileEntity invalidation
+- fixed some problems with BlockEntity invalidation
 Dependencies:
 - for MC-1.11.2
 - forge-13.20.0.2315 (or newer)
@@ -629,7 +629,7 @@ Dependencies:
 v5.0.2:
 Changes:
 - fixed model bugs
-- fixed TileEntity neighbor notification
+- fixed BlockEntity neighbor notification
 - model system improvements
 - fixed null-ItemStack bugs
 Dependencies:
@@ -676,7 +676,7 @@ Dependencies:
 
 3.1.3 Changes:
 - fixed NBTRecipe ignoring tag of original output item.
-- added recipe handler for Heat Radiator.
+- added recipe InteractionHandler for Heat Radiator.
 - improved Chunk Protection API.
 
 3.1.1 Changes:
@@ -697,7 +697,7 @@ Dependencies:
 
 3.0.2 Changes:
 - fixed tool tip display bugs
-- fixed block collision handling
+- fixed block collision InteractionHandling
 - fixed rendering bugs
 - improved recipe API
 - added Fluid rendering

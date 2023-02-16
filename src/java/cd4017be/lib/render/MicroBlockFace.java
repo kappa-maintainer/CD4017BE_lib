@@ -18,7 +18,7 @@ import static net.minecraftforge.client.MinecraftForgeClient.getRenderLayer;
 import java.util.*;
 
 import cd4017be.lib.render.model.JitBakedModel;
-import cd4017be.lib.render.model.TileEntityModel;
+import cd4017be.lib.render.model.BlockEntityModel;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
@@ -128,7 +128,7 @@ public class MicroBlockFace {
 
 	private static final HashMap<Object, MicroBlockFace[]> MODEL_CACHE = new HashMap<>();
 	static {
-		TileEntityModel.registerCacheInvalidate(MODEL_CACHE::clear);
+		BlockEntityModel.registerCacheInvalidate(MODEL_CACHE::clear);
 	}
 
 	/**@param key must be a BlockState or ResourceLocation

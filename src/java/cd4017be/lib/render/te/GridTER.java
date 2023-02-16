@@ -3,17 +3,17 @@ package cd4017be.lib.render.te;
 import com.mojang.blaze3d.matrix.MatrixStack;
 
 import cd4017be.api.grid.IDynamicPart;
-import cd4017be.lib.tileentity.Grid;
+import cd4017be.lib.BlockEntity.Grid;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
-import net.minecraft.client.renderer.tileentity.TileEntityRenderer;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.BlockEntity.BlockEntityRenderer;
+import net.minecraft.client.renderer.BlockEntity.BlockEntityRendererDispatcher;
 
 
 /**
  * @author CD4017BE */
-public class GridTER extends TileEntityRenderer<Grid> {
+public class GridTER extends BlockEntityRenderer<Grid> {
 
-	public GridTER(TileEntityRendererDispatcher terd) {
+	public GridTER(BlockEntityRendererDispatcher terd) {
 		super(terd);
 	}
 

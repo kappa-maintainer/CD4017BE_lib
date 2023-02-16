@@ -2,25 +2,25 @@ package cd4017be.lib.container;
 
 import static cd4017be.lib.Content.fLUID_SUPP;
 import static cd4017be.lib.container.ContainerEnergySupply.TEX;
-import static cd4017be.lib.tileentity.FluidSupply.MAX_SLOTS;
+import static cd4017be.lib.BlockEntity.FluidSupply.MAX_SLOTS;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.BitSet;
 import java.util.function.DoubleSupplier;
 import cd4017be.lib.capability.BasicTanks;
-import cd4017be.lib.container.slot.SlotFluidHandler;
+import cd4017be.lib.container.slot.SlotFluidInteractionHandler;
 import cd4017be.lib.gui.ModularGui;
 import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
-import cd4017be.lib.tileentity.FluidSupply;
-import cd4017be.lib.tileentity.FluidSupply.Slot;
-import net.minecraft.entity.player.PlayerInventory;
+import cd4017be.lib.BlockEntity.FluidSupply;
+import cd4017be.lib.BlockEntity.FluidSupply.Slot;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidInteractionHandler;
 
 /**@author CD4017BE */
 public class ContainerFluidSupply extends AdvancedContainer {
@@ -35,11 +35,11 @@ public class ContainerFluidSupply extends AdvancedContainer {
 		this(id, inv, tile, false, tile);
 	}
 
-	private ContainerFluidSupply(int id, PlayerInventory pinv, IFluidHandler inv, boolean client, Object... ref) {
+	private ContainerFluidSupply(int id, PlayerInventory pinv, IFluidInteractionHandler inv, boolean client, Object... ref) {
 		super(fLUID_SUPP, id, pinv, StateSyncAdv.of(client, indices, 12, ref), 12);
 		for(int j = 0; j < 4; j++)
 			for(int i = 0; i < 3; i++)
-				addSlot(new SlotFluidHandler(
+				addSlot(new SlotFluidInteractionHandler(
 					inv, i + j * 3, 8 + i * 54, 16 + j * 18
 				), true);
 		addPlayerInventory(8, 104);

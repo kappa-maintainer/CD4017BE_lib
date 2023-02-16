@@ -4,18 +4,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.fluid.Fluid;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
+import net.minecraftforge.fluids.capability.templates.FluidInteractionHandlerItemStack;
 
 /**
  * 
  * @author CD4017BE
  */
-public class SingleFluidItemHandler extends FluidHandlerItemStack {
+public class SingleFluidItemInteractionHandler extends FluidInteractionHandlerItemStack {
 
 	private final String tag;
 	private final Fluid type;
 
-	public SingleFluidItemHandler(ItemStack item, int cap, Fluid type, String tag) {
+	public SingleFluidItemInteractionHandler(ItemStack item, int cap, Fluid type, String tag) {
 		super(item, cap);
 		this.tag = tag;
 		this.type = type;

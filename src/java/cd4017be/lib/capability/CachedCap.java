@@ -4,7 +4,7 @@ import static cd4017be.lib.util.Utils.getTileAt;
 
 import java.util.function.Supplier;
 
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
@@ -37,7 +37,7 @@ public class CachedCap<T> implements NonNullConsumer<LazyOptional<T>>, Supplier<
 
 	@Override
 	public void accept(LazyOptional<T> t) {
-		TileEntity te = getTileAt(world, pos);
+		BlockEntity te = getTileAt(world, pos);
 		if (te != null) {
 			LazyOptional<T> lo = te.getCapability(cap, side);
 			value = lo.orElse(fallback);

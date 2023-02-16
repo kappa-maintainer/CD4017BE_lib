@@ -4,8 +4,8 @@ import java.util.ConcurrentModificationException;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.CompoundTag;
 
@@ -33,7 +33,7 @@ public class MovedBlock {
 	 * @param pos the block's position
 	 * @param addedTileEntities optional list of TileEntities already added via {@link #paste}
 	 * @return captured block data to {@link #paste} somewhere else
-	 * @throws ConcurrentModificationException if called during TileEntity update ticks!
+	 * @throws ConcurrentModificationException if called during BlockEntity update ticks!
 	 */
 	public static MovedBlock cut(DimPos pos, @Nullable Map<DimPos, CompoundTag> addedTileEntities) {
 		throw new UnsupportedOperationException();
@@ -41,12 +41,12 @@ public class MovedBlock {
 		World world = pos.getServerLevel();//force load dimension
 		Chunk chunk = world.getChunkFromBlockCoords(pos);//force load chunk
 		CompoundTag nbt;
-		TileEntity te = chunk.getTileEntityMap().remove(pos);
+		BlockEntity te = chunk.getBlockEntityMap().remove(pos);
 		if (te == null)
 			nbt = addedTileEntities != null ? addedTileEntities.remove(pos) : null;
 		else {
 			te.onChunkUnload();
-			world.loadedTileEntityList.remove(te);
+			world.loadedBlockEntityList.remove(te);
 			world.tickableTileEntities.remove(te);
 			nbt = te.serializeNBT();
 		}
@@ -83,7 +83,7 @@ public class MovedBlock {
 		if (y >= chunk.precipitationHeightMap[i] - 1) chunk.precipitationHeightMap[i] = -999;
 		
 		if (oldState == newState) {
-			if (oldBlock.hasTileEntity(oldState)) world.removeTileEntity(pos);
+			if (oldBlock.hasBlockEntity(oldState)) world.removeBlockEntity(pos);
 		} else {
 			ExtendedBlockStorage[] storageArrays = chunk.getBlockStorageArray();
 			ExtendedBlockStorage ebs = storageArrays[y >> 4];
@@ -96,7 +96,7 @@ public class MovedBlock {
 			}
 			ebs.set(x, y & 15, z, newState);
 			
-			if (oldBlock.hasTileEntity(oldState)) world.removeTileEntity(pos);
+			if (oldBlock.hasBlockEntity(oldState)) world.removeBlockEntity(pos);
 			
 			if (ebs.get(x, y & 15, z).getBlock() != newBlock) return false;
 			
@@ -118,7 +118,7 @@ public class MovedBlock {
 				nbt.putInt("x", pos.getX());
 				nbt.putInt("y", pos.getY());
 				nbt.putInt("z", pos.getZ());
-				chunk.addTileEntity(TileEntity.create(world, nbt));
+				chunk.addBlockEntity(BlockEntity.create(world, nbt));
 			}
 		
 		chunk.setModified(true);
@@ -142,8 +142,8 @@ public class MovedBlock {
 			nbt.putInt("y", pos.getY());
 			nbt.putInt("z", pos.getZ());
 			World world = pos.getWorld();
-			TileEntity te = TileEntity.create(world, nbt);
-			if (te != null) world.getChunkFromBlockCoords(pos).addTileEntity(te);
+			BlockEntity te = BlockEntity.create(world, nbt);
+			if (te != null) world.getChunkFromBlockCoords(pos).addBlockEntity(te);
 		}*/
 	}
 
@@ -217,7 +217,7 @@ public class MovedBlock {
 		pl.syncPlayerInventory(player);
 		for (PotionEffect potioneffect : player.getActivePotionEffects())
 			player.connection.sendPacket(new SPacketEntityEffect(player.getEntityId(), potioneffect));
-		net.minecraftforge.fml.common.FMLCommonHandler.instance().firePlayerChangedDimensionEvent(player, dimO, dimN);
+		net.minecraftforge.fml.common.FMLCommonInteractionHandler.instance().firePlayerChangedDimensionEvent(player, dimO, dimN);
 		return player;*/
 	}
 

@@ -8,12 +8,16 @@ import cd4017be.lib.util.ItemFluidUtil;
 import cd4017be.math.Orient;
 import it.unimi.dsi.fastutil.shorts.ShortArrays;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -81,12 +85,12 @@ public abstract class GridPart implements IPortHolder, TagSynchronized {
 	}
 
 	/**@param player
-	 * @param hand used hand or null if left click
+	 * @param InteractionHand used InteractionHand or null if left click
 	 * @param hit original ray trace hit
 	 * @param pos hit voxel pos
 	 * @return action result */
-	public ActionResultType onInteract(PlayerEntity player, Hand hand, BlockRayTraceResult hit, int pos) {
-		if (hand != null) return ActionResultType.PASS;
+	public InteractionResult onInteract(Player player, InteractionHand InteractionHand, BlockHitResult hit, int pos) {
+		if (InteractionHand != null) return InteractionResult.PASS;
 		if (!player.level.isClientSide && player.getMainHandItem().getItem() instanceof IGridItem) {
 			IGridHost host = this.host;
 			host.removePart(this);
@@ -94,7 +98,7 @@ public abstract class GridPart implements IPortHolder, TagSynchronized {
 			if (!player.isCreative())
 				ItemFluidUtil.dropStack(asItemStack(), player);
 		}
-		return ActionResultType.CONSUME;
+		return InteractionResult.CONSUME;
 	}
 
 	/**@param model used to render the grid block
@@ -120,7 +124,7 @@ public abstract class GridPart implements IPortHolder, TagSynchronized {
 	 * @param dir side of this grid */
 	public void onBlockChange(Level world, BlockPos pos, Direction dir) {}
 
-	/**when an adjacent TileEntity changes
+	/**when an adjacent BlockEntity changes
 	 * @param world
 	 * @param pos changed TE's postion
 	 * @param dir side of this grid */

@@ -1,11 +1,11 @@
 package cd4017be.lib.container.slot;
 
 import cd4017be.lib.container.AdvancedContainer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
 /**Allows Slots to have special interaction behavior
  * and more control over item extraction insertion
@@ -50,11 +50,11 @@ public interface ISpecialSlot {
 	 */
 	public static void quickSelect(PlayerEntity player, ItemStack item) {
 		ItemStack stack = player.inventory.getCarried();
-		if (!stack.isEmpty() && !ItemHandlerHelper.canItemStacksStack(item, stack)) return;
-		item = ItemHandlerHelper.copyStackWithSize(item, item.getMaxStackSize() - stack.getCount());
+		if (!stack.isEmpty() && !ItemInteractionHandlerHelper.canItemStacksStack(item, stack)) return;
+		item = ItemInteractionHandlerHelper.copyStackWithSize(item, item.getMaxStackSize() - stack.getCount());
 		if (item.isEmpty()) return;
 		int n = stack.getCount() + getFromPlayerInv(item, player.inventory);
-		stack = ItemHandlerHelper.copyStackWithSize(item, player.isCreative() ? item.getMaxStackSize() : n);
+		stack = ItemInteractionHandlerHelper.copyStackWithSize(item, player.isCreative() ? item.getMaxStackSize() : n);
 		player.inventory.setCarried(stack);
 	}
 
@@ -71,7 +71,7 @@ public interface ISpecialSlot {
 		for (int i = 0; i < inv.items.size(); i++) {
 			ItemStack stack = inv.items.get(i);
 			int n = stack.getCount();
-			if (n > 0 && n < m && ItemHandlerHelper.canItemStacksStack(stack, item)) {
+			if (n > 0 && n < m && ItemInteractionHandlerHelper.canItemStacksStack(stack, item)) {
 				if (x <= m - n) {
 					stack.grow(x);
 					return 0;
@@ -89,7 +89,7 @@ public interface ISpecialSlot {
 					return 0;
 				} else {
 					x -= m;
-					inv.items.set(i, ItemHandlerHelper.copyStackWithSize(item, m));
+					inv.items.set(i, ItemInteractionHandlerHelper.copyStackWithSize(item, m));
 				}
 			}
 		return x;
@@ -105,7 +105,7 @@ public interface ISpecialSlot {
 		int n = 0;
 		for (int i = 0; i < inv.items.size(); i++) {
 			ItemStack stack = inv.items.get(i);
-			if (ItemHandlerHelper.canItemStacksStack(item, stack)) {
+			if (ItemInteractionHandlerHelper.canItemStacksStack(item, stack)) {
 				n += stack.getCount();
 				if (n <= item.getCount()) {
 					inv.items.set(i, ItemStack.EMPTY);

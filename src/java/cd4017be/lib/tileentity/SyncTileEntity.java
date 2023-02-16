@@ -1,4 +1,4 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import static cd4017be.lib.tick.GateUpdater.GATE_UPDATER;
 
@@ -6,19 +6,19 @@ import java.util.ArrayList;
 
 import cd4017be.lib.network.IPlayerPacketReceiver;
 import cd4017be.lib.network.IServerPacketReceiver;
-import cd4017be.lib.network.SyncNetworkHandler;
+import cd4017be.lib.network.SyncNetworkInteractionHandler;
 import cd4017be.lib.tick.IGate;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.BlockEntity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-/**A TileEntity with special fast synchronisation to nearby players.
+/**A BlockEntity with special fast synchronisation to nearby players.
  * @author CD4017BE */
-public abstract class SyncTileEntity extends BaseTileEntity
+public abstract class SyncBlockEntity extends BaseBlockEntity
 implements IServerPacketReceiver, IPlayerPacketReceiver {
 
 	public static double CLIENT_RANGE, SERVER_RANGE;
@@ -26,7 +26,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	private final ArrayList<ServerPlayerEntity> watching = new ArrayList<>();
 	protected boolean update;
 
-	public SyncTileEntity(TileEntityType<?> type) {
+	public SyncBlockEntity(BlockEntityType<?> type) {
 		super(type);
 	}
 
@@ -55,8 +55,8 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 				player.getX(), player.getY(), player.getZ(), true
 			) < CLIENT_RANGE) {
 				update = true;
-				SyncNetworkHandler.instance.sendToServer(
-					SyncNetworkHandler.preparePacket(this)
+				SyncNetworkInteractionHandler.instance.sendToServer(
+					SyncNetworkInteractionHandler.preparePacket(this)
 				);
 			}
 		}
@@ -64,15 +64,15 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) {
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) {
 		if (!sender.isAlive() || watching.contains(sender)) return;
 		watching.add(sender);
-		SyncNetworkHandler.instance.sendToPlayer(makeSyncPacket(true), sender);
+		SyncNetworkInteractionHandler.instance.sendToPlayer(makeSyncPacket(true), sender);
 	}
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
+	public void InteractionHandleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		byte n = pkt.readByte();
 		if (n == 0) update = false;
 		else readSync(pkt, n);
@@ -86,17 +86,17 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 				player.getX(), player.getY(), player.getZ(), true
 			) < SERVER_RANGE) continue;
 			watching.remove(i);
-			FriendlyByteBuf pkt = SyncNetworkHandler.preparePacket(this);
+			FriendlyByteBuf pkt = SyncNetworkInteractionHandler.preparePacket(this);
 			pkt.writeByte(0);
-			SyncNetworkHandler.instance.sendToPlayer(pkt, player);
+			SyncNetworkInteractionHandler.instance.sendToPlayer(pkt, player);
 		}
 		if (!watching.isEmpty())
-			SyncNetworkHandler.instance.sendToPlayers(makeSyncPacket(false), watching);
+			SyncNetworkInteractionHandler.instance.sendToPlayers(makeSyncPacket(false), watching);
 		return false;
 	}
 
 	private FriendlyByteBuf makeSyncPacket(boolean full) {
-		FriendlyByteBuf pkt = SyncNetworkHandler.preparePacket(this);
+		FriendlyByteBuf pkt = SyncNetworkInteractionHandler.preparePacket(this);
 		int p = pkt.writerIndex();
 		pkt.writeByte(0);
 		pkt.setByte(p, writeSync(pkt, full));

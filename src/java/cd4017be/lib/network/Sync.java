@@ -4,9 +4,9 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 import java.lang.annotation.*;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodHandles.Lookup;
+import java.lang.invoke.MethodInteractionHandle;
+import java.lang.invoke.MethodInteractionHandles;
+import java.lang.invoke.MethodInteractionHandles.Lookup;
 import java.nio.ByteBuffer;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.*;
@@ -74,7 +74,7 @@ public @interface Sync {
 		Enum0(Enum.class, 1);
 
 		final Class<?> inType;
-		final MethodHandle read, write, comp, update;
+		final MethodInteractionHandle read, write, comp, update;
 		final int size;
 
 		private Type(Class<?> inType, int size) {
@@ -82,7 +82,7 @@ public @interface Sync {
 			this.size = size;
 			try {
 				if (inType.isPrimitive()) {
-					Lookup l = MethodHandles.lookup();
+					Lookup l = MethodInteractionHandles.lookup();
 					this.read = l.unreflect(Type.class.getDeclaredMethod("read" + name(), Tag.class));
 					this.write = l.unreflect(Type.class.getDeclaredMethod("write" + name(), inType));
 					this.comp = l.unreflect(Type.class.getDeclaredMethod("check" + name(), inType, ByteBuffer.class));
@@ -91,7 +91,7 @@ public @interface Sync {
 						"read" + Character.toUpperCase(name.charAt(0)) + name.substring(1)
 					));
 				} else if (inType == Enum.class) {
-					Lookup l = MethodHandles.lookup();
+					Lookup l = MethodInteractionHandles.lookup();
 					this.read = l.unreflect(Type.class.getDeclaredMethod("read" + name(), Tag.class, Enum[].class));
 					this.write = l.unreflect(Type.class.getDeclaredMethod("write" + name(), inType));
 					this.comp = l.unreflect(Type.class.getDeclaredMethod("check" + name(), inType, ByteBuffer.class));
@@ -120,14 +120,14 @@ public @interface Sync {
 			return this;
 		}
 
-		public MethodHandle read(Object[] enums) {
+		public MethodInteractionHandle read(Object[] enums) {
 			return enums == null ? read
-				: MethodHandles.insertArguments(read, 1, (Object)enums);
+				: MethodInteractionHandles.insertArguments(read, 1, (Object)enums);
 		}
 
-		public MethodHandle update(Object[] enums) {
+		public MethodInteractionHandle update(Object[] enums) {
 			return enums == null ? update
-				: MethodHandles.insertArguments(update, 1, (Object)enums);
+				: MethodInteractionHandles.insertArguments(update, 1, (Object)enums);
 		}
 
 		static boolean readI1(Tag nbt) {return nbt instanceof NumberNBT && ((NumberNBT)nbt).getAsByte() != 0;}

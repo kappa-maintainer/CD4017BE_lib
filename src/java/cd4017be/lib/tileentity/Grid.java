@@ -1,4 +1,4 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import static cd4017be.lib.Content.GRID;
 import static cd4017be.lib.Content.GRID1;
@@ -16,22 +16,22 @@ import cd4017be.lib.Content;
 import cd4017be.lib.block.BlockTE;
 import cd4017be.lib.block.BlockTE.*;
 import cd4017be.lib.render.model.JitBakedModel;
-import cd4017be.lib.render.model.TileEntityModel;
+import cd4017be.lib.render.model.BlockEntityModel;
 import cd4017be.lib.tick.IGate;
 import cd4017be.lib.util.HashOutputStream;
 import cd4017be.lib.util.Utils;
 import cd4017be.lib.util.VoxelShape4x4x4;
 import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.LongArrayNBT;
+import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.BlockEntity.BlockEntityType;
+import net.minecraft.util.InteractionResult;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.shapes.*;
@@ -44,7 +44,7 @@ import net.minecraftforge.client.model.data.ModelDataMap;
 import net.minecraftforge.common.util.Constants.NBT;
 
 /**@author CD4017BE */
-public class Grid extends SyncTileEntity
+public class Grid extends SyncBlockEntity
 implements IGridHost, ITEInteract, ITEShape, ITERedstone,
 ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 
@@ -55,7 +55,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	private int tLoad;
 	private boolean occlude, updateOccl;
 
-	public Grid(TileEntityType<?> type) {
+	public Grid(BlockEntityType<?> type) {
 		super(type);
 	}
 
@@ -65,10 +65,10 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	public ActionResultType onActivated(
-		PlayerEntity player, Hand hand, BlockRayTraceResult hit
+	public InteractionResult onActivated(
+		PlayerEntity player, InteractionHand InteractionHand, BlockRayTraceResult hit
 	) {
-		return onInteract(player, hand, hit);
+		return onInteract(player, InteractionHand, hit);
 	}
 
 	@Override
@@ -115,10 +115,10 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 		for (int i = 0; i < part.ports.length; i++) {
 			short con = part.ports[i];
 			if (extPorts.remove(con, wire)) continue;
-			if (part.isMaster(i)) part.setHandler(i, null);
+			if (part.isMaster(i)) part.setInteractionHandler(i, null);
 			else {
 				Port port = findPort(part, con);
-				if (port != null) port.setHandler(null);
+				if (port != null) port.setInteractionHandler(null);
 			}
 		}
 		updateRedstone(part);
@@ -154,8 +154,8 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 			if (extPorts.createPort(con, master, !unloaded)) continue;
 			Port port = findPort(part, con);
 			if (port == null) continue;
-			if (master) part.setHandler(i, port.getHandler());
-			else port.setHandler(part.getHandler(i));
+			if (master) part.setInteractionHandler(i, port.getInteractionHandler());
+			else port.setInteractionHandler(part.getInteractionHandler(i));
 		}
 	}
 
@@ -209,7 +209,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 		updateBounds();
 		if ((mode & SAVE) != 0) {
 			if (nbt.contains("extIO", NBT.TAG_LONG_ARRAY))
-				extPorts.deserializeNBT((LongArrayNBT)nbt.get("extIO"));
+				extPorts.deserializeNBT((LongArrayTag)nbt.get("extIO"));
 			//state loaded from item after placement:
 			if (!unloaded) onLoad();
 			else tLoad = TICK;
@@ -247,7 +247,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	@Override
 	@OnlyIn(Dist.CLIENT)
 	public IModelData getModelData() {
-		ModelDataMap data = TileEntityModel.MODEL_DATA_BUILDER.build();
+		ModelDataMap data = BlockEntityModel.MODEL_DATA_BUILDER.build();
 		JitBakedModel model = JitBakedModel.make(data, JitBakedModel.LAYERED);
 		long o = opaque;
 		boolean open = (WALLS & ~o) != 0;
@@ -448,7 +448,7 @@ ITEBlockUpdate, ITENeighborChange, ITEPickItem, IGate {
 	}
 
 	@Override
-	public TileEntityType<?> getType() {
+	public BlockEntityType<?> getType() {
 		return level != null && level.isClientSide && dynamicParts != null
 			? Content.GRID_TER : super.getType();
 	}

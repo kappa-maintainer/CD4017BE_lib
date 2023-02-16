@@ -1,12 +1,12 @@
 The CD4017BE_lib is a Minecraft mod that serves as java library for my other mods. It contains:
-- `cd4017be.lib.render.model`: utilities to simplify static TileEntity rendering (`TileEntityModel`) and an alternate model format `ScriptModel` using my own scripting language (`cd4017be.lib.script.*`) that is more convenient for complex item & block models.
-- `cd4017be.lib.network`: network handlers and automatic synchronization of fields annotated with `@Sync` to world save, client or GUIs.
+- `cd4017be.lib.render.model`: utilities to simplify static BlockEntity rendering (`BlockEntityModel`) and an alternate model format `ScriptModel` using my own scripting language (`cd4017be.lib.script.*`) that is more convenient for complex item & block models.
+- `cd4017be.lib.network`: network InteractionHandlers and automatic synchronization of fields annotated with `@Sync` to world save, client or GUIs.
 - `cd4017be.lib.gui.*`: a modular GUI system containing many often used elements such as buttons, text fields, progress bars, dynamic formatted text, etc. that use function objects to poll and modify values.
 - `cd4017be.lib.tick.*`: arbitrary object ticking pipeline based on Forge ServerTickEvent.
 - `cd4017be.lib.text.TooltipUtil`: String translation utilities that wrap around LanguageMap to add features like the in-game TooltipEditor.
 - `cd4017be.lib.util.Utils`, `cd4017be.lib.util.ItemFluidUtil`: often used utility methods.
 - `cd4017be.math.*`: linear algebra with float[] vectors, complex numbers and other math utilities.
-- several template implementations for Block, Item, TileEntity, Container, GridPart, IItemHandler, IFluidHandler and more.
+- several template implementations for Block, Item, BlockEntity, Container, GridPart, IItemInteractionHandler, IFluidInteractionHandler and more.
 - `cd4017be.api.*`: mod APIs used to let my mods interact with each other and with other mods.
 - `cd4017be.api.grid.*`: my own 4x4x4 sub-grid [Microblock API](src/java/cd4017be/api/grid/README.md) and a connection system for interaction between GridParts.
 

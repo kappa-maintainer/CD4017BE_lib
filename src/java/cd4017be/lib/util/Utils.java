@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 import cd4017be.lib.block.BlockTE.ITERedstone;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.Tag;
@@ -23,10 +23,10 @@ import net.minecraft.nbt.IntNBT;
 import net.minecraft.nbt.IntArrayNBT;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongTag;
-import net.minecraft.nbt.LongArrayNBT;
+import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.ShortNBT;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.*;
 import net.minecraft.util.Direction.Axis;
@@ -84,24 +84,24 @@ public class Utils {
 	}
 
 	/**
-	 * Chunk-flushing save way to get a neighboring TileEntity
+	 * Chunk-flushing save way to get a neighboring BlockEntity
 	 * @param tile source tile
 	 * @param side side of source tile to get neighbor for
-	 * @return neighbor TileEntity or null if not existing or chunk not loaded
+	 * @return neighbor BlockEntity or null if not existing or chunk not loaded
 	 */
-	public static @Nullable TileEntity neighborTile(TileEntity tile, Direction side) {
+	public static @Nullable BlockEntity neighborTile(BlockEntity tile, Direction side) {
 		World world = tile.getLevel();
 		BlockPos pos = tile.getBlockPos().relative(side);
 		return world.isLoaded(pos) ? world.getBlockEntity(pos) : null;
 	}
 
 	/**
-	 * Chunk-flushing save way to get a TileEntity for given position
+	 * Chunk-flushing save way to get a BlockEntity for given position
 	 * @param world World
 	 * @param pos tile position
-	 * @return the TileEntity or null if not existing or chunk not loaded
+	 * @return the BlockEntity or null if not existing or chunk not loaded
 	 */
-	public static @Nullable TileEntity getTileAt(World world, BlockPos pos) {
+	public static @Nullable BlockEntity getTileAt(World world, BlockPos pos) {
 		return world.isLoaded(pos) ? world.getBlockEntity(pos) : null;
 	}
 
@@ -110,14 +110,14 @@ public class Utils {
 	 * @param tile source tile
 	 * @param side side of source tile to get neighboring capability for
 	 * @param cap the capability type
-	 * @return capability instance or null if chunk not loaded, no TileEntity or capability not available
+	 * @return capability instance or null if chunk not loaded, no BlockEntity or capability not available
 	 */
 	@Deprecated
-	public static @Nullable <T> T neighborCapability(TileEntity tile, Direction side, Capability<T> cap) {
+	public static @Nullable <T> T neighborCapability(BlockEntity tile, Direction side, Capability<T> cap) {
 		World world = tile.getLevel();
 		BlockPos pos = tile.getBlockPos().relative(side);
 		if (!world.isLoaded(pos)) return null;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te != null ? te.getCapability(cap, side.getOpposite()).orElse(null) : null;
 	}
 
@@ -127,12 +127,12 @@ public class Utils {
 	 * @param pos tile position
 	 * @param side side to access
 	 * @param cap the capability type
-	 * @return capability instance or null if chunk not loaded, no TileEntity or capability not available
+	 * @return capability instance or null if chunk not loaded, no BlockEntity or capability not available
 	 */
 	@Deprecated
 	public static @Nullable <T> T getCapabilityAt(World world, BlockPos pos, @Nullable Direction side, Capability<T> cap) {
 		if (!world.isLoaded(pos)) return null;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te != null ? te.getCapability(cap, side).orElse(null) : null;
 	}
 
@@ -248,31 +248,31 @@ public class Utils {
 	}
 
 	@Deprecated
-	public static void updateRedstoneOnSide(TileEntity te, int value, Direction side) {
+	public static void updateRedstoneOnSide(BlockEntity te, int value, Direction side) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
 		ICapabilityProvider cp = neighborTile(te, side);
-		if (cp != null && cp instanceof IQuickRedstoneHandler) ((IQuickRedstoneHandler)cp).onRedstoneStateChange(side.getOpposite(), value, te);
+		if (cp != null && cp instanceof IQuickRedstoneInteractionHandler) ((IQuickRedstoneInteractionHandler)cp).onRedstoneStateChange(side.getOpposite(), value, te);
 		else te.getWorld().neighborChanged(te.getPos().offset(side), te.getBlockType(), te.getPos());*/
 	}
 
 	@Deprecated
-	public static <T extends TileEntity & ITERedstone> void updateRedstoneOnSide(T te, Direction side) {
+	public static <T extends BlockEntity & ITERedstone> void updateRedstoneOnSide(T te, Direction side) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
 		ICapabilityProvider cp = neighborTile(te, side);
-		if (cp instanceof IQuickRedstoneHandler)
-			((IQuickRedstoneHandler)cp).onRedstoneStateChange(side.getOpposite(), te.redstoneLevel(side, false), te);
+		if (cp instanceof IQuickRedstoneInteractionHandler)
+			((IQuickRedstoneInteractionHandler)cp).onRedstoneStateChange(side.getOpposite(), te.redstoneLevel(side, false), te);
 		else te.getWorld().neighborChanged(te.getPos().offset(side), te.getBlockType(), te.getPos());*/
 	}
 
 	/**
-	 * Notify neighboring block(s) of TileEntity change
-	 * @param te the TileEntity that changed
+	 * Notify neighboring block(s) of BlockEntity change
+	 * @param te the BlockEntity that changed
 	 * @param side the side on which a neighbor should be notified or null to notify on all sides.
 	 */
 	@Deprecated
-	public static void notifyNeighborTile(TileEntity te, Direction side) {
+	public static void notifyNeighborTile(BlockEntity te, Direction side) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
 		if (side != null) {
@@ -288,28 +288,28 @@ public class Utils {
 	}
 
 	/**@param player
-	 * @param hand
+	 * @param InteractionHand
 	 * @return color for held item */
-	public static @Nullable DyeColor heldColor(PlayerEntity player, @Nullable Hand hand) {
-		if (hand == null) return null;
-		ItemStack stack = player.getItemInHand(hand);
+	public static @Nullable DyeColor heldColor(PlayerEntity player, @Nullable InteractionHand InteractionHand) {
+		if (InteractionHand == null) return null;
+		ItemStack stack = player.getItemInInteractionHand(InteractionHand);
 		return stack.isEmpty() ? null : DyeColor.getColor(stack);
 	}
 
 	/**@param player
 	 * @param action to run only on server side
-	 * @return {@link ActionResultType#sidedSuccess(client)} */
-	public static ActionResultType serverAction(PlayerEntity player, Runnable action) {
+	 * @return {@link InteractionResult#sidedSuccess(client)} */
+	public static InteractionResult serverAction(PlayerEntity player, Runnable action) {
 		return serverAction(player.level.isClientSide, action);
 	}
 
 	/**@param client
 	 * @param action to run only on server side
-	 * @return {@link ActionResultType#sidedSuccess(client)} */
-	public static ActionResultType serverAction(boolean client, Runnable action) {
-		if (client) return ActionResultType.SUCCESS;
+	 * @return {@link InteractionResult#sidedSuccess(client)} */
+	public static InteractionResult serverAction(boolean client, Runnable action) {
+		if (client) return InteractionResult.SUCCESS;
 		action.run();
-		return ActionResultType.CONSUME;
+		return InteractionResult.CONSUME;
 	}
 
 	/**
@@ -461,7 +461,7 @@ public class Utils {
 			long[] arr = new long[l];
 			for (int i = 0; i < l; i++)
 				arr[i] = data.readLong();
-			return new LongArrayNBT(arr);
+			return new LongArrayTag(arr);
 		}
 		case NBT.TAG_STRING: {
 			int l = data.readUnsignedShort();
@@ -502,7 +502,7 @@ public class Utils {
 				data.writeInt(v);
 		}	return;
 		case NBT.TAG_LONG_ARRAY: {
-			long[] arr = ((LongArrayNBT)tag).getAsLongArray();
+			long[] arr = ((LongArrayTag)tag).getAsLongArray();
 			data.writeInt(arr.length);
 			for (long v : arr)
 				data.writeLong(v);

@@ -9,7 +9,7 @@ import net.minecraftforge.fluids.FluidStack;
  * 
  * @author CD4017BE
  */
-public class LinkedTank implements IFluidHandlerModifiable {
+public class LinkedTank implements IFluidInteractionHandlerModifiable {
 
 	private final Supplier<FluidStack> get;
 	private final Consumer<FluidStack> set;

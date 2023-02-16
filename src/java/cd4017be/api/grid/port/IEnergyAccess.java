@@ -3,7 +3,7 @@ package cd4017be.api.grid.port;
 import cd4017be.api.grid.Link;
 import net.minecraftforge.energy.IEnergyStorage;
 
-/**Grid port handler for energy transfer.
+/**Grid port InteractionHandler for energy transfer.
  * The energy unit is the same as in {@link IEnergyStorage}.
  * @author CD4017BE */
 public interface IEnergyAccess {
@@ -27,7 +27,7 @@ public interface IEnergyAccess {
 	/** port type id */
 	int TYPE_ID = 1;
 
-	static IEnergyAccess of(Object handler) {
-		return handler instanceof IEnergyAccess ? (IEnergyAccess)handler : NOP;
+	static IEnergyAccess of(Object InteractionHandler) {
+		return InteractionHandler instanceof IEnergyAccess ? (IEnergyAccess)InteractionHandler : NOP;
 	}
 }

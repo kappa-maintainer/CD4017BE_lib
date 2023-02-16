@@ -13,7 +13,7 @@ import net.minecraft.world.item.ItemStack;
 
 import net.minecraft.core.Direction;
 
-/**Implemented by the TileEntity that is hosting {@link GridPart}s.
+/**Implemented by the BlockEntity that is hosting {@link GridPart}s.
  * @author CD4017BE */
 public interface IGridHost extends IGridPortHolder {
 
@@ -29,15 +29,15 @@ public interface IGridHost extends IGridPortHolder {
 	void updateDisplay();
 
 	@Override
-	default Object getHandler(int port) {
+	default Object getInteractionHandler(int port) {
 		Port p = findPort(null, extPorts().getPort(port));
-		return p != null ? p.getHandler() : null;
+		return p != null ? p.getInteractionHandler() : null;
 	}
 
 	@Override
-	default void setHandler(int port, Object handler) {
+	default void setInteractionHandler(int port, Object InteractionHandler) {
 		Port p = findPort(null, extPorts().getPort(port));
-		if (p != null) p.setHandler(handler);
+		if (p != null) p.setInteractionHandler(InteractionHandler);
 	}
 
 	default GridPart getPart(int pos, byte layer) {
@@ -47,8 +47,8 @@ public interface IGridHost extends IGridPortHolder {
 		);
 	}
 
-	default ActionResultType onInteract(
-		PlayerEntity player, Hand hand, BlockRayTraceResult hit
+	default InteractionResult onInteract(
+		PlayerEntity player, InteractionHand InteractionHand, BlockRayTraceResult hit
 	) {
 		partInteract: {
 			int pos = target(hit, false);
@@ -56,13 +56,13 @@ public interface IGridHost extends IGridPortHolder {
 			GridPart part = getPart(pos, L_OUTER);
 			if (part == null) part = getPart(pos, L_INNER);
 			if (part == null) break partInteract;
-			ActionResultType res = part.onInteract(player, hand, hit, pos);
+			InteractionResult res = part.onInteract(player, InteractionHand, hit, pos);
 			if (res.consumesAction()) return res;
 		}
-		ItemStack stack = player.getItemInHand(hand == null ? Hand.MAIN_HAND : hand);
+		ItemStack stack = player.getItemInInteractionHand(InteractionHand == null ? InteractionHand.MAIN_InteractionHand : InteractionHand);
 		return stack.getItem() instanceof IGridItem
-			? ((IGridItem)stack.getItem()).onInteract(this, stack, player, hand, hit)
-			: ActionResultType.PASS;
+			? ((IGridItem)stack.getItem()).onInteract(this, stack, player, InteractionHand, hit)
+			: InteractionResult.PASS;
 	}
 
 	static int target(BlockRayTraceResult hit, boolean adjacent) {

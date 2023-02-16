@@ -3,7 +3,7 @@ package cd4017be.lib.render.model;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

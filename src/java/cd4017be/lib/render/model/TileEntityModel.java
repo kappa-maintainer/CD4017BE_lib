@@ -28,7 +28,7 @@ import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.data.*;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 
-/**A Block Model that lets the TileEntity control what to render,
+/**A Block Model that lets the BlockEntity control what to render,
  * including custom BakedQuads via {@link JitBakedModel}
  * and/or part models via {@link PartModel}.
  * For convenience and to reduce file clutter, part models can
@@ -49,11 +49,11 @@ import net.minecraftforge.client.model.geometry.IModelGeometry;
  * }</pre>
  * @author CD4017BE */
 @OnlyIn(Dist.CLIENT)
-public class TileEntityModel implements IModelGeometry<TileEntityModel> {
+public class BlockEntityModel implements IModelGeometry<BlockEntityModel> {
 
 	private final List<Pair<String, IModelGeometry<?>>> partModels;
 
-	public TileEntityModel(List<Pair<String, IModelGeometry<?>>> partModels) {
+	public BlockEntityModel(List<Pair<String, IModelGeometry<?>>> partModels) {
 		this.partModels = partModels;
 	}
 
@@ -193,7 +193,7 @@ public class TileEntityModel implements IModelGeometry<TileEntityModel> {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	public static class Loader implements IModelLoader<TileEntityModel> {
+	public static class Loader implements IModelLoader<BlockEntityModel> {
 
 		public static final Loader INSTANCE = new Loader();
 
@@ -205,7 +205,7 @@ public class TileEntityModel implements IModelGeometry<TileEntityModel> {
 		}
 
 		@Override
-		public TileEntityModel
+		public BlockEntityModel
 		read(JsonDeserializationContext context, JsonObject modelContents) {
 			List<Pair<String, IModelGeometry<?>>> parts;
 			if (modelContents.has("parts")) {
@@ -223,7 +223,7 @@ public class TileEntityModel implements IModelGeometry<TileEntityModel> {
 					parts.add(Pair.of(e.getKey(), m));
 				}
 			} else parts = Collections.emptyList();
-			return new TileEntityModel(parts);
+			return new BlockEntityModel(parts);
 		}
 
 	}

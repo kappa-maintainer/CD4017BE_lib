@@ -3,7 +3,7 @@ package cd4017be.lib.container;
 import net.minecraft.world.item.ItemStack;
 
 @FunctionalInterface
-public interface IQuickTransferHandler {
+public interface IQuickTransferInteractionHandler {
 
 	/**
 	 * called to perform quick move on an item from the players inventory to the machine (or whatever).

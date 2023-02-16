@@ -16,8 +16,8 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.*;
@@ -62,36 +62,36 @@ public class MicroBlockItem extends GridItem implements IModelDataItem {
 	}
 
 	@Override
-	public ActionResultType onInteract(
+	public InteractionResult onInteract(
 		IGridHost grid, ItemStack stack, PlayerEntity player,
-		Hand hand, BlockRayTraceResult hit
+		InteractionHand InteractionHand, BlockRayTraceResult hit
 	) {
-		if (hand == null) return ActionResultType.PASS;
+		if (InteractionHand == null) return InteractionResult.PASS;
 		int pos = IGridHost.target(hit, false);
 		if (pos < 0 || grid.getPart(pos, L_OUTER) != null)
 			pos = IGridHost.target(hit, true);
-		if (pos < 0) return ActionResultType.PASS;
-		if (player.level.isClientSide) return ActionResultType.CONSUME;
+		if (pos < 0) return InteractionResult.PASS;
+		if (player.level.isClientSide) return InteractionResult.CONSUME;
 		
 		CompoundTag tag = stack.getOrCreateTag();
 		BlockState block = getBlock(new BlockItemUseContext(
-			player, hand, ItemStack.of(tag), hit
+			player, InteractionHand, ItemStack.of(tag), hit
 		));
-		if (block == null) return ActionResultType.FAIL;
+		if (block == null) return InteractionResult.FAIL;
 		MicroBlock part = (MicroBlock)grid.findPart(
 			p -> p instanceof MicroBlock && ((MicroBlock)p).block == block
 		);
 		if (!(
 			part != null ? part.addVoxel(pos)
 			: grid.addPart(new MicroBlock(block, tag, 1L << pos))
-		)) return ActionResultType.FAIL;
+		)) return InteractionResult.FAIL;
 		if (!player.isCreative()) stack.shrink(1);
-		return ActionResultType.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	public ItemStack convert(ItemStack stack, World world, PlayerEntity player, BlockPos pos) {
 		BlockState state = getBlock(new BlockItemUseContext(
-			world, player, Hand.MAIN_HAND, stack,
+			world, player, InteractionHand.MAIN_InteractionHand, stack,
 			new BlockRayTraceResult(
 				upFromBottomCenterOf(pos, 1),
 				Direction.UP, pos, false
@@ -101,7 +101,7 @@ public class MicroBlockItem extends GridItem implements IModelDataItem {
 	}
 
 	public static BlockState getBlock(BlockItemUseContext context) {
-		ItemStack stack = context.getItemInHand();
+		ItemStack stack = context.getItemInInteractionHand();
 		if (!(stack.getItem() instanceof BlockItem)) return null;
 		Block block = ((BlockItem)stack.getItem()).getBlock();
 		BlockState state = block.getStateForPlacement(context);
@@ -123,7 +123,7 @@ public class MicroBlockItem extends GridItem implements IModelDataItem {
 		BlockState state = Block.stateById(stack.getOrCreateTag().getInt("state"));
 		if (state.getBlock() == Blocks.AIR) //so the item is not invisible in recipes
 			state = Blocks.STONE.defaultBlockState();
-		ModelDataMap data = TileEntityModel.MODEL_DATA_BUILDER.build();
+		ModelDataMap data = BlockEntityModel.MODEL_DATA_BUILDER.build();
 		ArrayList<BakedQuad> quads = JitBakedModel.make(data).inner();
 		float[] ofs = {.25F, .25F, .25F}, size = {.5F, .5F, .5F};
 		for (MicroBlockFace f : MicroBlockFace.facesOf(state))

@@ -1,4 +1,4 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import java.util.ArrayList;
 import java.util.function.Supplier;
@@ -7,42 +7,42 @@ import cd4017be.lib.container.ContainerItemSupply;
 import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.IPlayerPacketReceiver;
 import cd4017be.lib.network.Sync;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.Tag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.BlockEntity.BlockEntityType;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.IItemInteractionHandler;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
 import static cd4017be.lib.network.Sync.GUI;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+import static net.minecraftforge.items.CapabilityItemInteractionHandler.ITEM_InteractionHandLER_CAPABILITY;
 
 /** @author CD4017BE */
-public class ItemSupply extends BaseTileEntity
-implements IItemHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
+public class ItemSupply extends BaseBlockEntity
+implements IItemInteractionHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 
 	public static int MAX_SLOTS = 64;
 
-	final LazyOptional<IItemHandler> handler = LazyOptional.of(()->this);
+	final LazyOptional<IItemInteractionHandler> InteractionHandler = LazyOptional.of(()->this);
 	public final ArrayList<Slot> slots = new ArrayList<>();
 	@Sync(to=GUI) public int scroll;
 
-	public ItemSupply(TileEntityType<ItemSupply> type) {
+	public ItemSupply(BlockEntityType<ItemSupply> type) {
 		super(type);
 	}
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == ITEM_HANDLER_CAPABILITY) return handler.cast();
+		if (cap == ITEM_InteractionHandLER_CAPABILITY) return InteractionHandler.cast();
 		return super.getCapability(cap, side);
 	}
 
@@ -66,11 +66,11 @@ implements IItemHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 		if(slot < slots.size()) {
 			Slot s = slots.get(slot);
 			if(
-				!ItemHandlerHelper.canItemStacksStack(stack, s.stack)
+				!ItemInteractionHandlerHelper.canItemStacksStack(stack, s.stack)
 			) return stack;
 			if(!simulate) s.countIn += stack.getCount();
 		} else if(!simulate) {
-			Slot s = new Slot(ItemHandlerHelper.copyStackWithSize(stack, 1));
+			Slot s = new Slot(ItemInteractionHandlerHelper.copyStackWithSize(stack, 1));
 			s.countIn = stack.getCount();
 			slots.add(s);
 		}
@@ -82,7 +82,7 @@ implements IItemHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 		if(slot >= slots.size()) return ItemStack.EMPTY;
 		Slot s = slots.get(slot);
 		if(!simulate) s.countOut += amount;
-		return ItemHandlerHelper.copyStackWithSize(s.stack, amount);
+		return ItemInteractionHandlerHelper.copyStackWithSize(s.stack, amount);
 	}
 
 	@Override
@@ -122,7 +122,7 @@ implements IItemHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		int cmd = pkt.readByte();
 		if (cmd < 0) {
@@ -158,7 +158,7 @@ implements IItemHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 				return;
 			}
 			Slot s = slots.get(slot);
-			if(ItemHandlerHelper.canItemStacksStack(stack, s.stack))
+			if(ItemInteractionHandlerHelper.canItemStacksStack(stack, s.stack))
 				s.stack.setCount(stack.getCount());
 			else slots.set(slot, new Slot(stack));
 		} else if(!stack.isEmpty())

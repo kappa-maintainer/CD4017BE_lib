@@ -13,10 +13,10 @@ import cd4017be.lib.container.*;
 import cd4017be.lib.item.*;
 import cd4017be.lib.render.GridModels;
 import cd4017be.lib.render.model.ScriptModel;
-import cd4017be.lib.render.model.TileEntityModel;
+import cd4017be.lib.render.model.BlockEntityModel;
 import cd4017be.lib.render.te.GridTER;
 import cd4017be.lib.text.TooltipEditor;
-import cd4017be.lib.tileentity.*;
+import cd4017be.lib.BlockEntity.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.AbstractBlock.Properties;
@@ -26,7 +26,7 @@ import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.item.Rarity;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.BlockEntity.BlockEntityType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -49,7 +49,7 @@ import net.minecraftforge.registries.ObjectHolder;
  * so they are differentiated by case to avoid variable name conflicts:<br>
  * Block -> ALL_UPPERCASE<br>
  * Item -> all_lowercase<br>
- * TileEntity -> stored in {@link BlockTE#tileType}<br>
+ * BlockEntity -> stored in {@link BlockTE#tileType}<br>
  * ContainerType -> fIRST_LOWERCASE_REMAINING_UPPERCASE
  * @author CD4017BE */
 @EventBusSubscriber(modid = Lib.ID, bus = Bus.MOD)
@@ -66,8 +66,8 @@ public class Content {
 	public static final GridHostItem grid = null;
 	public static final MicroBlockItem microblock = null;
 
-	/** alternate TileEntityType for Grid to enable dynamic rendering */
-	public static final TileEntityType<Grid> GRID_TER = null;
+	/** alternate BlockEntityType for Grid to enable dynamic rendering */
+	public static final BlockEntityType<Grid> GRID_TER = null;
 
 	public static final ContainerType<ContainerEnergySupply> eNERGY_SUPP = null;
 	public static final ContainerType<ContainerItemSupply> iTEM_SUPP = null;
@@ -110,14 +110,14 @@ public class Content {
 	}
 
 	@SubscribeEvent
-	public static void registerTileEntities(Register<TileEntityType<?>> ev) {
+	public static void registerTileEntities(Register<BlockEntityType<?>> ev) {
 		ev.getRegistry().registerAll(
 			ENERGY_SUPP.makeTEType(EnergySupply::new),
 			FLUID_SUPP.makeTEType(FluidSupply::new),
 			ITEM_SUPP.makeTEType(ItemSupply::new),
 			ASSEMBLER.makeTEType(Assembler::new),
 			BlockTE.makeTEType(Grid::new, GRID, GRID1),
-			TileEntityType.Builder.of(() -> new Grid(GRID_TER), GRID, GRID1)
+			BlockEntityType.Builder.of(() -> new Grid(GRID_TER), GRID, GRID1)
 				.build(null).setRegistryName(rl("grid_ter"))
 		);
 		GridPart.GRID_HOST_BLOCK = GRID.defaultBlockState();
@@ -144,14 +144,14 @@ public class Content {
 		ScreenManager.register(aSSEMBLER, ContainerAssembler::setupGui);
 		ScreenManager.register(gRID, ContainerGrid::setupGui);
 		ModLoadingContext.get().registerExtensionPoint(ExtensionPoint.CONFIGGUIFACTORY, Lib.CFG_CLIENT);
-		ClientRegistry.bindTileEntityRenderer(GRID_TER, GridTER::new);
+		ClientRegistry.bindBlockEntityRenderer(GRID_TER, GridTER::new);
 		RenderTypeLookup.setRenderLayer(GRID, Predicates.alwaysTrue());
 	}
 
 	@SubscribeEvent
 	@OnlyIn(Dist.CLIENT)
 	public static void registerModels(ModelRegistryEvent ev) {
-		ModelLoaderRegistry.registerLoader(rl("te"), TileEntityModel.Loader.INSTANCE);
+		ModelLoaderRegistry.registerLoader(rl("te"), BlockEntityModel.Loader.INSTANCE);
 		ModelLoaderRegistry.registerLoader(rl("rcp"), ScriptModel.Loader.INSTANCE);
 		for (ResourceLocation loc : GridModels.PORTS)
 			ModelLoader.addSpecialModel(loc);

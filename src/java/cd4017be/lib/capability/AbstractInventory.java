@@ -3,14 +3,14 @@ package cd4017be.lib.capability;
 import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.IItemInteractionHandlerModifiable;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
 /**
  * 
  * @author CD4017BE
  */
-public abstract class AbstractInventory implements IItemHandlerModifiable {
+public abstract class AbstractInventory implements IItemInteractionHandlerModifiable {
 
 	@Override
 	public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
@@ -19,14 +19,14 @@ public abstract class AbstractInventory implements IItemHandlerModifiable {
 		int m = Math.min(insertAm(slot, stack) - n, stack.getCount()); 
 		if (m <= 0) return stack;
 		if (n == 0) {
-			if (!simulate) setStackInSlot(slot, ItemHandlerHelper.copyStackWithSize(stack, m));
-		} else if (ItemHandlerHelper.canItemStacksStack(item, stack)) {
+			if (!simulate) setStackInSlot(slot, ItemInteractionHandlerHelper.copyStackWithSize(stack, m));
+		} else if (ItemInteractionHandlerHelper.canItemStacksStack(item, stack)) {
 			if (!simulate) {
 				item.grow(m);
 				setStackInSlot(slot, item);
 			}
 		} else return stack;
-		return ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - m);
+		return ItemInteractionHandlerHelper.copyStackWithSize(stack, stack.getCount() - m);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public abstract class AbstractInventory implements IItemHandlerModifiable {
 				setStackInSlot(slot, item);
 			}
 		}
-		return ItemHandlerHelper.copyStackWithSize(item, amount);
+		return ItemInteractionHandlerHelper.copyStackWithSize(item, amount);
 	}
 
 	@Override

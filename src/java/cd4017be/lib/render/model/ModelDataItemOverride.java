@@ -11,7 +11,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.client.renderer.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.Direction;
@@ -30,7 +30,7 @@ public class ModelDataItemOverride extends ItemOverrideList {
 	= new Int2ObjectLinkedOpenHashMap<>();
 
 	static {
-		TileEntityModel.registerCacheInvalidate(MODEL_CACHE::clear);
+		BlockEntityModel.registerCacheInvalidate(MODEL_CACHE::clear);
 	}
 
 	/**@param hash identifier code of the model to look up

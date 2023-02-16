@@ -5,10 +5,10 @@ import java.lang.ref.WeakReference;
 import com.google.common.base.MoreObjects;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.block.Blocks;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -38,10 +38,10 @@ public class DimPos extends BlockPos {
 	}
 
 	/**
-	 * get the dimensional block position of the given TileEntity
-	 * @param source a TileEntity (must be added to a world)
+	 * get the dimensional block position of the given BlockEntity
+	 * @param source a BlockEntity (must be added to a world)
 	 */
-	public DimPos(TileEntity source) {
+	public DimPos(BlockEntity source) {
 		this(source.getBlockPos(), source.getLevel());
 	}
 
@@ -191,10 +191,10 @@ public class DimPos extends BlockPos {
 	}
 
 	/**
-	 * utility method to get a TileEntity without force-loading chunks.
-	 * @return the TileEntity at this position or null if none there or chunk not loaded or world not assigned.
+	 * utility method to get a BlockEntity without force-loading chunks.
+	 * @return the BlockEntity at this position or null if none there or chunk not loaded or world not assigned.
 	 */
-	public TileEntity getTileEntity() {
+	public BlockEntity getBlockEntity() {
 		World world = this.world.get();
 		return world == null || !world.isLoaded(this) ? null : world.getBlockEntity(this);
 	}

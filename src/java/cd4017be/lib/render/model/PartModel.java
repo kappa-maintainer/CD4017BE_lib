@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.core.Direction;
 import net.minecraftforge.client.model.data.ModelProperty;
 
-/**ModelProperty for {@link TileEntityModel} to render a part model.
+/**ModelProperty for {@link BlockEntityModel} to render a part model.
  * @author CD4017BE */
 public class PartModel {
 

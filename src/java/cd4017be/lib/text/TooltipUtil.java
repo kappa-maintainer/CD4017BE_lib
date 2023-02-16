@@ -23,8 +23,8 @@ import cd4017be.lib.Lib;
  */
 public class TooltipUtil {
 
-	public static final TranslationTextComponent EXT_TOOLTIP_HINT = new TranslationTextComponent("cd4017be_lib.ext");
-	public static final TranslationTextComponent TOOLTIP_HINT = new TranslationTextComponent("cd4017be_lib.info");
+	public static final TranslatableComponent EXT_TOOLTIP_HINT = new TranslatableComponent("cd4017be_lib.ext");
+	public static final TranslatableComponent TOOLTIP_HINT = new TranslatableComponent("cd4017be_lib.info");
 	public static final StringTextComponent EMPTY = new StringTextComponent("");
 
 	/*

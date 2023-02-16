@@ -1,13 +1,13 @@
 package cd4017be.lib.capability;
 
-import cd4017be.lib.container.slot.SlotFluidHandler;
+import cd4017be.lib.container.slot.SlotFluidInteractionHandler;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.fluids.capability.IFluidInteractionHandler;
+import net.minecraftforge.items.IItemInteractionHandlerModifiable;
 
-/**The fluid equivalent of {@link IItemHandlerModifiable}, mainly used for {@link SlotFluidHandler} on client side.
+/**The fluid equivalent of {@link IItemInteractionHandlerModifiable}, mainly used for {@link SlotFluidInteractionHandler} on client side.
  * @author CD4017BE */
-public interface IFluidHandlerModifiable extends IFluidHandler {
+public interface IFluidInteractionHandlerModifiable extends IFluidInteractionHandler {
 
 	void setFluidInTank(int tank, FluidStack stack);
 

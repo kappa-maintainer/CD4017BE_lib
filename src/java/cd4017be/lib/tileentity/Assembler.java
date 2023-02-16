@@ -1,17 +1,4 @@
-package cd4017be.lib.tileentity;
-
-import static cd4017be.lib.Lib.CFG_SERVER;
-import static cd4017be.lib.network.Sync.GUI;
-import static cd4017be.lib.network.Sync.SAVE;
-import static cd4017be.lib.network.Sync.Type.*;
-import static cd4017be.lib.util.ItemFluidUtil.*;
-import static java.lang.Math.min;
-import static net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
-import static net.minecraftforge.items.ItemHandlerHelper.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+package cd4017be.lib.BlockEntity;
 
 import cd4017be.api.grid.GridPart;
 import cd4017be.api.grid.IGridItem;
@@ -21,31 +8,44 @@ import cd4017be.lib.block.BlockTE.ITEBreak;
 import cd4017be.lib.container.ContainerAssembler;
 import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.Sync;
-import cd4017be.lib.tileentity.BaseTileEntity.ITickableServerOnly;
+import cd4017be.lib.BlockEntity.BaseBlockEntity.ITickableServerOnly;
 import cd4017be.lib.util.ItemFluidUtil;
 import cd4017be.lib.util.SaferFakePlayer;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.core.Direction;
+import net.minecraft.nbt.Tag;
+import net.minecraft.BlockEntity.BlockEntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.server.ServerLevel;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.IItemInteractionHandler;
+import net.minecraftforge.items.IItemInteractionHandlerModifiable;
 import net.minecraftforge.items.wrapper.RangedWrapper;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static cd4017be.lib.Lib.CFG_SERVER;
+import static cd4017be.lib.network.Sync.GUI;
+import static cd4017be.lib.network.Sync.SAVE;
+import static cd4017be.lib.network.Sync.Type.*;
+import static cd4017be.lib.util.ItemFluidUtil.*;
+import static java.lang.Math.min;
+import static net.minecraftforge.items.CapabilityItemInteractionHandler.ITEM_InteractionHandLER_CAPABILITY;
+import static net.minecraftforge.items.ItemInteractionHandlerHelper.*;
+
 /**@author CD4017BE */
-public class Assembler extends BaseTileEntity
-implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvider, ITEBreak {
+public class Assembler extends BaseBlockEntity
+implements ITickableServerOnly, IItemInteractionHandlerModifiable, IUnnamedContainerProvider, ITEBreak {
 
 	final ArrayList<ItemStack> disassembly = new ArrayList<>();
 	/** 0: disassemble, 1: replicate, 2...22: parts */
@@ -61,10 +61,10 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 	@Sync(type = I8)
 	public int idxDA, t;
 	boolean canDA = true, updateASS = true;
-	LazyOptional<IItemHandler> inv_main, inv_out, inv_top;
+	LazyOptional<IItemInteractionHandler> inv_main, inv_out, inv_top;
 	SaferFakePlayer player;
 
-	public Assembler(TileEntityType<?> type) {
+	public Assembler(BlockEntityType<?> type) {
 		super(type);
 		Arrays.fill(inventory, ItemStack.EMPTY);
 	}
@@ -326,13 +326,13 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 	public void loadState(CompoundTag nbt, int mode) {
 		super.loadState(nbt, mode);
 		if ((mode & SAVE) != 0) {
-			loadInventory(nbt.getList("inv", NBT.TAG_COMPOUND), inventory);
-			ListTag list = nbt.getList("disass", NBT.TAG_COMPOUND);
+			loadInventory(nbt.getList("inv", Tag.TAG_COMPOUND), inventory);
+			ListTag list = nbt.getList("disass", Tag.TAG_COMPOUND);
 			disassembly.clear();
 			for (int i = 0; i < list.size(); i++)
 				disassembly.add(loadItemHighRes(list.getCompound(i)));
-			if (nbt.contains("assembly", NBT.TAG_LIST)) {
-				list = nbt.getList("assembly", NBT.TAG_COMPOUND);
+			if (nbt.contains("assembly", Tag.TAG_LIST)) {
+				list = nbt.getList("assembly", Tag.TAG_COMPOUND);
 				int l = list.size();
 				assembly = new ItemStack[l];
 				counts = new short[l];
@@ -346,7 +346,7 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 	}
 
 	@Override
-	public ContainerAssembler createMenu(int id, PlayerInventory inv, PlayerEntity player) {
+	public ContainerAssembler createMenu(int id, Inventory inv, Player player) {
 		return new ContainerAssembler(id, inv, this, this);
 	}
 
@@ -392,7 +392,7 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap != ITEM_HANDLER_CAPABILITY) return super.getCapability(cap, side);
+		if (cap != ITEM_InteractionHandLER_CAPABILITY) return super.getCapability(cap, side);
 		switch(side) {
 		case UP: return inv_top.cast();
 		case DOWN: return inv_out.cast();
@@ -401,7 +401,7 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 	}
 
 
-	private class InvOut implements IItemHandler {
+	private class InvOut implements IItemInteractionHandler {
 
 		@Override
 		public int getSlots() {
@@ -437,7 +437,7 @@ implements ITickableServerOnly, IItemHandlerModifiable, IUnnamedContainerProvide
 	}
 
 
-	private class InvMain implements IItemHandler {
+	private class InvMain implements IItemInteractionHandler {
 
 		@Override
 		public int getSlots() {

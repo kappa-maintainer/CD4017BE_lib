@@ -1,7 +1,7 @@
 package cd4017be.lib.container;
 
-import static cd4017be.lib.network.GuiNetworkHandler.GNH_INSTANCE;
-import static cd4017be.lib.network.GuiNetworkHandler.preparePacket;
+import static cd4017be.lib.network.GuiNetworkInteractionHandler.GNH_INSTANCE;
+import static cd4017be.lib.network.GuiNetworkInteractionHandler.preparePacket;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -12,19 +12,21 @@ import cd4017be.lib.container.slot.*;
 import cd4017be.lib.network.*;
 import cd4017be.lib.util.ItemFluidUtil;
 import cd4017be.lib.util.Utils;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.*;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
 /**A Container that offers improved data synchronization features
  * and support for {@link ISpecialSlot}s and {@link IFluidSlot}s.
@@ -33,21 +35,21 @@ public class AdvancedContainer extends Container
 implements IServerPacketReceiver, IPlayerPacketReceiver {
 
 	protected final StateSyncAdv sync;
-	public final PlayerInventory inv;
+	public final Inventory inv;
 	protected final int idxCount;
 	private int playerInvS;
 	private int playerInvE;
 	private BitSet syncSlots = new BitSet();
 	boolean hardInvUpdate = false;
-	public final ArrayList<IQuickTransferHandler> transferHandlers = new ArrayList<>();
+	public final ArrayList<IQuickTransferInteractionHandler> transferInteractionHandlers = new ArrayList<>();
 
 	/**@param type
 	 * @param id unique GUI session id
 	 * @param inv player's inventory
-	 * @param sync server -> client data synchronization handler
+	 * @param sync server -> client data synchronization InteractionHandler
 	 * @param idxCount object indices available for slot synchronization */
 	public AdvancedContainer(
-		ContainerType<?> type, int id, PlayerInventory inv,
+		ContainerType<?> type, int id, Inventory inv,
 		StateSyncAdv sync, int idxCount
 	) {
 		super(type, id);
@@ -85,7 +87,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		if (armor) {
 			for (int i = 0; i < 4; i++)
 				this.addSlot(new SlotArmor(inv, i + 36, x - 18, y - i * 18 + 36, EquipmentSlotType.values()[i + 2]));
-			this.addSlot(new SlotArmor(inv, 40, x - 18, y + 58, EquipmentSlotType.OFFHAND));
+			this.addSlot(new SlotArmor(inv, 40, x - 18, y + 58, EquipmentSlotType.OFFInteractionHand));
 		}
 	}
 
@@ -137,7 +139,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 						item.setCount(item1.getCount());
 						return true;
 					}
-				} else if (ItemHandlerHelper.canItemStacksStack(stack, item1)) {
+				} else if (ItemInteractionHandlerHelper.canItemStacksStack(stack, item1)) {
 					int j = stack.getCount() + item1.getCount();
 					int mxs = Math.min(item1.getMaxStackSize(), slot.getMaxStackSize());
 					if (j <= mxs) {
@@ -191,7 +193,7 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 		ItemStack stack = slot.getItem();
 		ItemStack item = stack.copy();
 		if (id >= playerInvS && id < playerInvE) {
-			for (IQuickTransferHandler h : transferHandlers)
+			for (IQuickTransferInteractionHandler h : transferInteractionHandlers)
 				if (h.transfer(stack, this)) break;
 		} else moveItemStackTo(stack, playerInvS, playerInvE, false);
 		if (stack.getCount() == item.getCount()) return ItemStack.EMPTY;
@@ -284,17 +286,17 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	}
 
 	@Override
-	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
+	public void InteractionHandleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		readChanges(sync.read(pkt), pkt);
 		sync.readChanges(pkt);
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		for(Object e : sync.holders)
 			if(e instanceof IPlayerPacketReceiver) {
-				((IPlayerPacketReceiver)e).handlePlayerPacket(pkt, sender);
+				((IPlayerPacketReceiver)e).InteractionHandlePlayerPacket(pkt, sender);
 				return;
 			}
 	}
@@ -302,8 +304,8 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 	@Override
 	public boolean stillValid(PlayerEntity playerIn) {
 		for(Object e : sync.holders)
-			if(e instanceof TileEntity) {
-				TileEntity te = (TileEntity)e;
+			if(e instanceof BlockEntity) {
+				BlockEntity te = (BlockEntity)e;
 				if(te.isRemoved() || te.getLevel() != playerIn.level) return false;
 				if(!te.getBlockPos().closerThan(playerIn.position(), 8)) return false;
 			}
@@ -312,8 +314,8 @@ implements IServerPacketReceiver, IPlayerPacketReceiver {
 
 	public BlockPos getPos() {
 		for(Object e : sync.holders)
-			if(e instanceof TileEntity)
-				return ((TileEntity)e).getBlockPos();
+			if(e instanceof BlockEntity)
+				return ((BlockEntity)e).getBlockPos();
 		return Utils.NOWHERE;
 	}
 

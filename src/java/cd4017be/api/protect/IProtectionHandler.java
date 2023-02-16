@@ -6,11 +6,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * A handler that defines restrictions for editing blocks in the world.<br>
+ * A InteractionHandler that defines restrictions for editing blocks in the world.<br>
  * Used to make machines follow the rules of claimed / protected areas.
  * @author cd4017be
  */
-public interface IProtectionHandler {
+public interface IProtectionInteractionHandler {
 
 	/**
 	 * requests permission for a player to break or place a block.
@@ -34,7 +34,7 @@ public interface IProtectionHandler {
 	/**
 	 * Fallback implementation that provides no restrictions at all
 	 */
-	public static final IProtectionHandler DEFAULT = new IProtectionHandler() {
+	public static final IProtectionInteractionHandler DEFAULT = new IProtectionInteractionHandler() {
 		@Override
 		public boolean canEdit(World world, BlockPos p0, BlockPos p1, GameProfile player) { return true; }
 		@Override

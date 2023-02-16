@@ -23,7 +23,7 @@ public class LibServer extends ModConfig {
 		.define("replicating", true);
 		b.pop();
 		clientSyncDst = b
-		.comment("Distance below which players start receiving packets for fast TileEntity changes.")
+		.comment("Distance below which players start receiving packets for fast BlockEntity changes.")
 		.defineInRange("min_sync_radius", 16.0, 1.0, 64.0);
 		serverSyncDst = b
 		.comment("Added on top of min_sync_radius to define the distance at which players stop receiving packets.")

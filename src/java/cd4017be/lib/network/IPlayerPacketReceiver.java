@@ -1,6 +1,6 @@
 package cd4017be.lib.network;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
 
@@ -11,12 +11,12 @@ import net.minecraft.network.FriendlyByteBuf;
 public interface IPlayerPacketReceiver {
 
 	/**
-	 * Handle a data packet from given player
+	 * InteractionHandle a data packet from given player
 	 * @param pkt contained payload
 	 * @param sender the player who sent this
 	 * @throws Exception potential decoding errors
 	 */
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception;
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception;
 
 	/**
 	 * special version for Items
@@ -24,14 +24,14 @@ public interface IPlayerPacketReceiver {
 	 */
 	public interface ItemPPR {
 		/**
-		 * Handle a data packet from given player
+		 * InteractionHandle a data packet from given player
 		 * @param stack target ItemStack
 		 * @param slot where the item is located in player's inventory
 		 * @param pkt packet payload
 		 * @param sender the player holding the item
 		 * @throws Exception potential decoding errors
 		 */
-		void handlePlayerPacket(ItemStack stack, int slot, FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception;
+		void InteractionHandlePlayerPacket(ItemStack stack, int slot, FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception;
 	}
 
 }

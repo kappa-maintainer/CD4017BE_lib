@@ -2,14 +2,14 @@ package cd4017be.lib.container;
 
 import cd4017be.lib.container.slot.HidableSlot;
 import cd4017be.lib.network.StateSyncAdv;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 
-/**Container template for hand-held item GUIs.
+/**Container template for InteractionHand-held item GUIs.
  * @author CD4017BE */
 public class ItemContainer extends AdvancedContainer {
 
@@ -21,7 +21,7 @@ public class ItemContainer extends AdvancedContainer {
 	 * @param inv player's inventory
 	 * @param slot player inventory slot holding the target item
 	 * @param item expected target item (GUI closes if changed)
-	 * @param sync server -> client data synchronization handler
+	 * @param sync server -> client data synchronization InteractionHandler
 	 * @param idxCount object indices available for slot synchronization */
 	public ItemContainer(
 		ContainerType<?> type, int id,

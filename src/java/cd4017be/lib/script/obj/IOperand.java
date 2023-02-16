@@ -47,7 +47,7 @@ public interface IOperand {
 	}
 
 	/**@param code binary operator code
-	 * @param x right-hand operand
+	 * @param x right-InteractionHand operand
 	 * @return op(this, x) */
 	default IOperand opR(int code, IOperand x) {
 		return x.opL(code, this);
@@ -55,7 +55,7 @@ public interface IOperand {
 
 	/**Fallback if {@link #opR x.opR(code, this)} not supported.
 	 * @param code binary operator code
-	 * @param x left-hand operand
+	 * @param x left-InteractionHand operand
 	 * @return op(x, this) */
 	default IOperand opL(int code, IOperand x) {
 		return new Error("undefined " + x + " " + OP_NAMES[code] + " " + this);
@@ -90,7 +90,7 @@ public interface IOperand {
 
 	/**
 	 * Operand specific version of {@link Object#equals(Object)}
-	 * @param obj right hand side operand
+	 * @param obj right InteractionHand side operand
 	 * @return this == obj
 	 */
 	default boolean equals(IOperand obj) {

@@ -4,10 +4,10 @@ import java.util.function.*;
 
 import cd4017be.api.grid.Link;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidInteractionHandler;
 
-/**Grid port handler for fluid storage interaction.
- * It's essentially {@link IFluidHandler} broken down to just inspecting tank
+/**Grid port InteractionHandler for fluid storage interaction.
+ * It's essentially {@link IFluidInteractionHandler} broken down to just inspecting tank
  * contents and moving fluids from one storage to another.
  * @author CD4017BE */
 public interface IFluidAccess extends ToIntFunction<FluidStack> {
@@ -67,7 +67,7 @@ public interface IFluidAccess extends ToIntFunction<FluidStack> {
 	/** port type id */
 	int TYPE_ID = 3;
 
-	static IFluidAccess of(Object handler) {
-		return handler instanceof IFluidAccess ? (IFluidAccess)handler : NOP;
+	static IFluidAccess of(Object InteractionHandler) {
+		return InteractionHandler instanceof IFluidAccess ? (IFluidAccess)InteractionHandler : NOP;
 	}
 }

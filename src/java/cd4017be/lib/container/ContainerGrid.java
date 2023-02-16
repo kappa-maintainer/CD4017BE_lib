@@ -9,10 +9,10 @@ import cd4017be.lib.container.slot.HidableSlot;
 import cd4017be.lib.gui.ModularGui;
 import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
-import cd4017be.lib.tileentity.Grid;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import cd4017be.lib.BlockEntity.Grid;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
@@ -57,13 +57,13 @@ public class ContainerGrid extends ItemContainer {
 	}
 
 	private Grid grid() {
-		if (cache == null) cache = grid.tileEntity(getStack());
+		if (cache == null) cache = grid.BlockEntity(getStack());
 		return cache;
 	}
 
 	private Grid grid(ItemStack stack) {
 		if (stack.getItem() == grid)
-			return grid.tileEntity(stack);
+			return grid.BlockEntity(stack);
 		return null;
 	}
 
@@ -89,7 +89,7 @@ public class ContainerGrid extends ItemContainer {
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		byte cmd = pkt.readByte();
 		int i = cmd & 0x7f, n = cmd < 0 ? 2 : 1;

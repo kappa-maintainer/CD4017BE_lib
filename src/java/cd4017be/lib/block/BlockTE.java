@@ -6,25 +6,25 @@ import java.util.function.Function;
 import javax.annotation.Nullable;
 
 import cd4017be.lib.container.IUnnamedContainerProvider;
-import cd4017be.lib.tileentity.BaseTileEntity;
+import cd4017be.lib.BlockEntity.BaseBlockEntity;
 import cd4017be.lib.util.ItemFluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.projectile.ProjecBlockEntity;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityType;
-import net.minecraft.tileentity.TileEntityType.Builder;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.BlockEntity.BlockEntityType;
+import net.minecraft.BlockEntity.BlockEntityType.Builder;
+import net.minecraft.util.InteractionResult;
 import net.minecraft.core.Direction;
-import net.minecraft.util.Hand;
+import net.minecraft.util.InteractionHand;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
@@ -36,62 +36,62 @@ import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-/**Passes most events and actions to interfaces implemented by the TileEntity.
- * @param <T> the TileEntity used by this block
+/**Passes most events and actions to interfaces implemented by the BlockEntity.
+ * @param <T> the BlockEntity used by this block
  * @author CD4017BE */
-public class BlockTE<T extends TileEntity> extends Block {
+public class BlockTE<T extends BlockEntity> extends Block {
 
-	public TileEntityType<T> tileType;
-	public final int handlerFlags;
+	public BlockEntityType<T> tileType;
+	public final int InteractionHandlerFlags;
 
 	/**@param properties the block properties
-	 * @param flags events passed to the TileEntity
+	 * @param flags events passed to the BlockEntity
 	 * @see #flags(Class) */
 	public BlockTE(Properties properties, int flags) {
 		super(properties);
-		this.handlerFlags = flags;
+		this.InteractionHandlerFlags = flags;
 	}
 
 	@Override
-	public boolean hasTileEntity(BlockState state) {
+	public boolean hasBlockEntity(BlockState state) {
 		return true;
 	}
 
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		if (!hasTileEntity(state)) return null;
-		TileEntity te = tileType.create();
-		if (te instanceof BaseTileEntity)
-			((BaseTileEntity)te).unloaded = false;
+	public BlockEntity createBlockEntity(BlockState state, IBlockReader world) {
+		if (!hasBlockEntity(state)) return null;
+		BlockEntity te = tileType.create();
+		if (te instanceof BaseBlockEntity)
+			((BaseBlockEntity)te).unloaded = false;
 		return te;
 	}
 
-	/**@param factory the TileEntity factory function
-	 * @return the TileEntityType created for this block */
-	public TileEntityType<T> makeTEType(Function<TileEntityType<T>, T> factory) {
+	/**@param factory the BlockEntity factory function
+	 * @return the BlockEntityType created for this block */
+	public BlockEntityType<T> makeTEType(Function<BlockEntityType<T>, T> factory) {
 		return makeTEType(factory, this);
 	}
 
-	/**@param factory the TileEntity factory function
+	/**@param factory the BlockEntity factory function
 	 * @param blocks the assigned blocks
-	 * @return the TileEntityType created for the given blocks */
+	 * @return the BlockEntityType created for the given blocks */
 	@SafeVarargs
-	public static <T extends TileEntity> TileEntityType<T> makeTEType(
-		Function<TileEntityType<T>, T> factory, BlockTE<T>... blocks
+	public static <T extends BlockEntity> BlockEntityType<T> makeTEType(
+		Function<BlockEntityType<T>, T> factory, BlockTE<T>... blocks
 	) {
 		BlockTE<T> block = blocks[0];
-		TileEntityType<T> type = Builder.of(() -> factory.apply(block.tileType), blocks).build(null);
+		BlockEntityType<T> type = Builder.of(() -> factory.apply(block.tileType), blocks).build(null);
 		type.setRegistryName(block.getRegistryName());
 		for (BlockTE<T> b : blocks) b.tileType = type;
 		return type;
 	}
 
-	private final <I> void handleTE(
+	private final <I> void InteractionHandleTE(
 		BlockState state, int event, IWorldReader world, BlockPos pos,
 		Class<I> type, Consumer<I> action
 	) {
-		if((handlerFlags & event) == 0 || !hasTileEntity(state)) return;
-		TileEntity te = world.getBlockEntity(pos);
+		if((InteractionHandlerFlags & event) == 0 || !hasBlockEntity(state)) return;
+		BlockEntity te = world.getBlockEntity(pos);
 		if(type.isInstance(te))
 			action.accept(type.cast(te));
 	}
@@ -102,7 +102,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 		BlockState state, World world, BlockPos pos,
 		BlockState newState, boolean isMoving
 	) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_BREAK, world, pos, ITEBreak.class,
 			te -> te.onBreak(newState, isMoving)
 		);
@@ -113,7 +113,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 	public void onNeighborChange(
 		BlockState state, IWorldReader world, BlockPos pos, BlockPos neighbor
 	) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_NEIGHBOR, world, pos, ITENeighborChange.class,
 			te -> te.onNeighborTEChange(neighbor)
 		);
@@ -124,39 +124,39 @@ public class BlockTE<T extends TileEntity> extends Block {
 		BlockState state, World world, BlockPos pos,
 		Block block, BlockPos fromPos, boolean isMoving
 	) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_UPDATE, world, pos, ITEBlockUpdate.class,
 			te -> te.onNeighborBlockChange(fromPos, block, isMoving)
 		);
 	}
 
 	@Override
-	public ActionResultType use(
+	public InteractionResult use(
 		BlockState state, World world, BlockPos pos,
-		PlayerEntity player, Hand hand, BlockRayTraceResult hit
+		PlayerEntity player, InteractionHand InteractionHand, BlockRayTraceResult hit
 	) {
-		if (!hasTileEntity(state)) return ActionResultType.PASS;
-		if((handlerFlags & H_INTERACT) != 0) {
-			TileEntity te = world.getBlockEntity(pos);
-			return te instanceof ITEInteract ? ((ITEInteract)te).onActivated(player, hand, hit)
-				: ActionResultType.PASS;
+		if (!hasBlockEntity(state)) return InteractionResult.PASS;
+		if((InteractionHandlerFlags & H_INTERACT) != 0) {
+			BlockEntity te = world.getBlockEntity(pos);
+			return te instanceof ITEInteract ? ((ITEInteract)te).onActivated(player, InteractionHand, hit)
+				: InteractionResult.PASS;
 		}
 		INamedContainerProvider ncp = getMenuProvider(state, world, pos);
-		if (ncp == null) return ActionResultType.PASS;
+		if (ncp == null) return InteractionResult.PASS;
 		if (!(player instanceof ServerPlayerEntity))
-			return ActionResultType.SUCCESS;
+			return InteractionResult.SUCCESS;
 		ServerPlayerEntity splayer = (ServerPlayerEntity)player;
 		if (ncp instanceof ISpecialContainerProvider)
 			NetworkHooks.openGui(splayer, ncp, (ISpecialContainerProvider)ncp);
 		else NetworkHooks.openGui(splayer, ncp, pos);
-		return ActionResultType.CONSUME;
+		return InteractionResult.CONSUME;
 	}
 
 	@Override
 	public void attack(
 		BlockState state, World world, BlockPos pos, PlayerEntity player
 	) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_INTERACT, world, pos, ITEInteract.class,
 			te -> te.onClicked(player)
 		);
@@ -164,7 +164,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 
 	@Override
 	public void entityInside(BlockState state, World world, BlockPos pos, Entity entity) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_COLLIDE, world, pos, ITECollision.class,
 			te -> te.onEntityCollided(entity)
 		);
@@ -172,9 +172,9 @@ public class BlockTE<T extends TileEntity> extends Block {
 
 	@Override
 	public void onProjectileHit(
-		World world, BlockState state, BlockRayTraceResult hit, ProjectileEntity projectile
+		World world, BlockState state, BlockRayTraceResult hit, ProjecBlockEntity projectile
 	) {
-		handleTE(
+		InteractionHandleTE(
 			state, H_COLLIDE, world, hit.getBlockPos(), ITECollision.class,
 			te -> te.onProjectileCollided(projectile, hit)
 		);
@@ -182,7 +182,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 
 	@Override
 	public boolean isSignalSource(BlockState state) {
-		return (handlerFlags & H_REDSTONE) != 0 && hasTileEntity(state);
+		return (InteractionHandlerFlags & H_REDSTONE) != 0 && hasBlockEntity(state);
 	}
 
 	@Override
@@ -197,7 +197,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 		BlockState state, IBlockReader world, BlockPos pos, Direction side
 	) {
 		if(!isSignalSource(state)) return 0;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te instanceof ITERedstone ? ((ITERedstone)te).redstoneSignal(side, false) : 0;
 	}
 
@@ -206,7 +206,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 		BlockState state, IBlockReader world, BlockPos pos, Direction side
 	) {
 		if(!isSignalSource(state)) return 0;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te instanceof ITERedstone ? ((ITERedstone)te).redstoneSignal(side, true) : 0;
 	}
 
@@ -216,26 +216,26 @@ public class BlockTE<T extends TileEntity> extends Block {
 	) {
 		if(!isSignalSource(state)) return false;
 		if(side == null) return true;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te instanceof ITERedstone && ((ITERedstone)te).redstoneConnection(side);
 	}
 
 	@Override
 	public boolean hasAnalogOutputSignal(BlockState state) {
-		return (handlerFlags & H_COMPARATOR) != 0 && hasTileEntity(state);
+		return (InteractionHandlerFlags & H_COMPARATOR) != 0 && hasBlockEntity(state);
 	}
 
 	@Override
 	public int getAnalogOutputSignal(BlockState state, World world, BlockPos pos) {
 		if(!hasAnalogOutputSignal(state)) return 0;
-		TileEntity te = world.getBlockEntity(pos);
+		BlockEntity te = world.getBlockEntity(pos);
 		return te instanceof ITEComparator ? ((ITEComparator)te).comparatorSignal() : 0;
 	}
 
 	@Override
 	public INamedContainerProvider getMenuProvider(BlockState state, World world, BlockPos pos) {
-		if ((handlerFlags & H_GUI) == 0 || !hasTileEntity(state)) return null;
-		TileEntity te = world.getBlockEntity(pos);
+		if ((InteractionHandlerFlags & H_GUI) == 0 || !hasBlockEntity(state)) return null;
+		BlockEntity te = world.getBlockEntity(pos);
 		return te instanceof INamedContainerProvider ? (INamedContainerProvider)te : null;
 	}
 
@@ -243,8 +243,8 @@ public class BlockTE<T extends TileEntity> extends Block {
 	public VoxelShape getShape(
 		BlockState state, IBlockReader world, BlockPos pos, ISelectionContext context
 	) {
-		if ((handlerFlags & H_SHAPE) != 0 && hasTileEntity(state)) {
-			TileEntity te = world.getBlockEntity(pos);
+		if ((InteractionHandlerFlags & H_SHAPE) != 0 && hasBlockEntity(state)) {
+			BlockEntity te = world.getBlockEntity(pos);
 			if (te instanceof ITEShape)
 				return ((ITEShape)te).getShape(context);
 		}
@@ -261,8 +261,8 @@ public class BlockTE<T extends TileEntity> extends Block {
 		BlockState state, RayTraceResult target,
 		IBlockReader world, BlockPos pos, PlayerEntity player
 	) {
-		if ((handlerFlags & H_ITEMDATA) != 0 && hasTileEntity(state)) {
-			TileEntity te = world.getBlockEntity(pos);
+		if ((InteractionHandlerFlags & H_ITEMDATA) != 0 && hasBlockEntity(state)) {
+			BlockEntity te = world.getBlockEntity(pos);
 			if (te instanceof ITEPickItem)
 				return ((ITEPickItem)te).getPickItem((BlockRayTraceResult)target, player);
 		}
@@ -272,8 +272,8 @@ public class BlockTE<T extends TileEntity> extends Block {
 	@Override
 	public ItemStack getCloneItemStack(IBlockReader world, BlockPos pos, BlockState state) {
 		ItemStack stack = new ItemStack(this);
-		if ((handlerFlags & H_ITEMDATA) != 0 && hasTileEntity(state)) {
-			TileEntity te = world.getBlockEntity(pos);
+		if ((InteractionHandlerFlags & H_ITEMDATA) != 0 && hasBlockEntity(state)) {
+			BlockEntity te = world.getBlockEntity(pos);
 			if (te instanceof ITEPickItem)
 				return ((ITEPickItem)te).getItem();
 			else if (te != null)
@@ -288,8 +288,8 @@ public class BlockTE<T extends TileEntity> extends Block {
 	) {
 		super.playerWillDestroy(world, pos, state, player);
 		if (world.isClientSide || !player.isCreative()) return;
-		if ((handlerFlags & H_ITEMDATA) == 0 || !hasTileEntity(state)) return;
-		TileEntity te = world.getBlockEntity(pos);
+		if ((InteractionHandlerFlags & H_ITEMDATA) == 0 || !hasBlockEntity(state)) return;
+		BlockEntity te = world.getBlockEntity(pos);
 		if (te == null) return;
 		ItemStack stack;
 		if (te instanceof ITEPickItem) {
@@ -311,20 +311,20 @@ public class BlockTE<T extends TileEntity> extends Block {
 		World world, BlockPos pos, BlockState state,
 		LivingEntity entity, ItemStack stack
 	) {
-		handleTE(state, H_PLACE, world, pos, ITEPlace.class,
+		InteractionHandleTE(state, H_PLACE, world, pos, ITEPlace.class,
 			te -> te.onPlace(state, stack, entity));
 	}
 
 	public static final String TE_TAG = "BlockEntityTag";
 
-	/** TileEntity handler flags */
+	/** BlockEntity InteractionHandler flags */
 	public static final int
 	H_BREAK = 1, H_NEIGHBOR = 2, H_UPDATE = 4, H_INTERACT = 8,
 	H_COLLIDE = 16, H_REDSTONE = 32, H_COMPARATOR = 64, H_DROPS = 128,
 	H_GUI = 256, H_SHAPE = 512, H_ITEMDATA = 1024, H_PLACE = 2048;
 
-	/**@param c TileEntity class
-	 * @return handler flags based on implemented interfaces */
+	/**@param c BlockEntity class
+	 * @return InteractionHandler flags based on implemented interfaces */
 	public static int flags(Class<?> c) {
 		int f = 0;
 		if(ITEBreak.class.isAssignableFrom(c)) f |= H_BREAK;
@@ -358,7 +358,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 
 	public interface ITEInteract {
 
-		ActionResultType onActivated(PlayerEntity player, Hand hand, BlockRayTraceResult hit);
+		InteractionResult onActivated(PlayerEntity player, InteractionHand InteractionHand, BlockRayTraceResult hit);
 
 		void onClicked(PlayerEntity player);
 	}
@@ -371,7 +371,7 @@ public class BlockTE<T extends TileEntity> extends Block {
 
 		/** when projectile collides into this block */
 		default void
-		onProjectileCollided(ProjectileEntity projectile, BlockRayTraceResult hit) {}
+		onProjectileCollided(ProjecBlockEntity projectile, BlockRayTraceResult hit) {}
 	}
 
 	public interface ITERedstone {

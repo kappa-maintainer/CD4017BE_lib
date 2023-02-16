@@ -6,7 +6,7 @@ import cd4017be.api.grid.Link;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.server.ServerLevel;
 
-/**Grid port handler for remote block interaction.
+/**Grid port InteractionHandler for remote block interaction.
  * @author CD4017BE */
 @FunctionalInterface
 public interface IBlockSupplier {
@@ -24,16 +24,16 @@ public interface IBlockSupplier {
 
 	IBlockSupplier NOP = r -> null;
 
-	static IBlockSupplier of(Object handler, IBlockSupplier fallback) {
-		return handler instanceof IBlockSupplier ? (IBlockSupplier)handler : fallback;
+	static IBlockSupplier of(Object InteractionHandler, IBlockSupplier fallback) {
+		return InteractionHandler instanceof IBlockSupplier ? (IBlockSupplier)InteractionHandler : fallback;
 	}
 
-	static IBlockSupplier of(Object handler) {
-		return handler instanceof IBlockSupplier ? (IBlockSupplier)handler : NOP;
+	static IBlockSupplier of(Object InteractionHandler) {
+		return InteractionHandler instanceof IBlockSupplier ? (IBlockSupplier)InteractionHandler : NOP;
 	}
 
-	static String toString(IBlockSupplier handler) {
-		ImmutablePair<BlockPos, ServerLevel> dest = handler.getBlock();
+	static String toString(IBlockSupplier InteractionHandler) {
+		ImmutablePair<BlockPos, ServerLevel> dest = InteractionHandler.getBlock();
 		if (dest == null) return "cd4017be.unloaded";
 		return String.format(
 			"\\(%d,%d,%d)%s", dest.left.getX(),

@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.ModelRotation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.math.vector.Vector3d;
@@ -84,7 +84,7 @@ public class Util {
 	}
 
 	@Deprecated
-	public static void luminate(TileEntity te, Direction side, int b) {
+	public static void luminate(BlockEntity te, Direction side, int b) {
 		throw new UnsupportedOperationException();
 		/* TODO implement
 		BlockPos pos = side == null ? te.getPos() : te.getPos().offset(side);

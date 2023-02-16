@@ -15,8 +15,8 @@ public class PermissionUtil {
 	/**fallback GameProfile to use when the responsible player is unknown */
 	public static final GameProfile DEFAULT_PLAYER = new GameProfile(new UUID(0, 0), "#machine");
 
-	/**the currently active handler to be used by devices */
-	public static IProtectionHandler handler = IProtectionHandler.DEFAULT;
+	/**the currently active InteractionHandler to be used by devices */
+	public static IProtectionInteractionHandler InteractionHandler = IProtectionInteractionHandler.DEFAULT;
 
 	public static void writeOwner(CompoundTag nbt, GameProfile owner) {
 		nbt.putString("ownerName", owner.getName());

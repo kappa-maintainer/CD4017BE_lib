@@ -7,15 +7,15 @@ import java.util.Arrays;
 import cd4017be.api.grid.IPortHolder.Port;
 import cd4017be.lib.Lib;
 import it.unimi.dsi.fastutil.longs.LongArrays;
-import net.minecraft.nbt.LongArrayNBT;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.nbt.LongArrayTag;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
-import net.minecraftforge.common.util.TagSerializable;
+import net.minecraftforge.common.util.INBTSerializable;
 
 /**Manages grid port connections for a {@link IGridPortHolder}.
  * @author CD4017BE */
-public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
+public class ExtGridPorts implements INBTSerializable<LongArrayTag> {
 
 	private final IGridPortHolder host;
 	/**bit63 = {0: port, 1: metadata}, bit62 = link valid <br>
@@ -52,7 +52,7 @@ public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
 		return ports[port] << 4 < 0;
 	}
 
-	/**Call during loading to perform port handshakes
+	/**Call during loading to perform port InteractionHandshakes
 	 * for connections across blocks. */
 	public void onLoad() {
 		for (int i = 0; i < ports.length; i++) {
@@ -62,7 +62,7 @@ public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
 		}
 	}
 
-	/**Call when unloading to perform port handler
+	/**Call when unloading to perform port InteractionHandler
 	 * invalidation for connections across blocks. */
 	public void onUnload() {
 		for (int i = 0; i < ports.length; i++) {
@@ -87,12 +87,12 @@ public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
 	}
 
 	@Override
-	public LongArrayNBT serializeNBT() {
-		return new LongArrayNBT(ports);
+	public LongArrayTag serializeNBT() {
+		return new LongArrayTag(ports);
 	}
 
 	@Override
-	public void deserializeNBT(LongArrayNBT nbt) {
+	public void deserializeNBT(LongArrayTag nbt) {
 		ports = LongArrays.EMPTY_ARRAY;
 		long[] arr = nbt.getAsLongArray();
 		for (int i = arr.length; i > 0; i--)
@@ -257,7 +257,7 @@ public class ExtGridPorts implements TagSerializable<LongArrayNBT> {
 
 	private ExtGridPorts adjacent(int dir) {
 		BlockPos pos = host.pos().relative(Direction.from3DDataValue(dir));
-		TileEntity te = host.world().getBlockEntity(pos);
+		BlockEntity te = host.world().getBlockEntity(pos);
 		return te instanceof IGridPortHolder ?
 			((IGridPortHolder)te).extPorts() : null;
 	}

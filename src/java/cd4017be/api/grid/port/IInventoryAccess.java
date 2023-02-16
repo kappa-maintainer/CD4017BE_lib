@@ -4,11 +4,11 @@ import java.util.function.*;
 
 import cd4017be.api.grid.Link;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.IItemInteractionHandler;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
-/**Grid port handler for item inventory interaction.
- * It's essentially {@link IItemHandler} broken down to just inspecting inventory
+/**Grid port InteractionHandler for item inventory interaction.
+ * It's essentially {@link IItemInteractionHandler} broken down to just inspecting inventory
  * contents and moving items from one inventory to another without a concept of slots.
  * @author CD4017BE */
 public interface IInventoryAccess extends ToIntFunction<ItemStack> {
@@ -68,12 +68,12 @@ public interface IInventoryAccess extends ToIntFunction<ItemStack> {
 	/** port type id */
 	int TYPE_ID = 2;
 
-	static IInventoryAccess of(Object handler) {
-		return handler instanceof IInventoryAccess ? (IInventoryAccess)handler : NOP;
+	static IInventoryAccess of(Object InteractionHandler) {
+		return InteractionHandler instanceof IInventoryAccess ? (IInventoryAccess)InteractionHandler : NOP;
 	}
 
 	static Predicate<ItemStack> filter(ItemStack stack) {
-		return s -> ItemHandlerHelper.canItemStacksStack(s, stack);
+		return s -> ItemInteractionHandlerHelper.canItemStacksStack(s, stack);
 	}
 
 }

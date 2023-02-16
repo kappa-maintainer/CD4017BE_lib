@@ -2,12 +2,12 @@ package cd4017be.lib.network;
 
 import java.lang.invoke.*;
 import java.lang.reflect.*;
-import static java.lang.invoke.MethodHandles.*;
+import static java.lang.invoke.MethodInteractionHandles.*;
 import java.nio.ByteBuffer;
 import static java.lang.invoke.MethodType.methodType;
 import java.io.IOException;
 import static cd4017be.lib.Lib.DEV_DEBUG;
-import static java.lang.invoke.MethodHandleProxies.asInterfaceInstance;
+import static java.lang.invoke.MethodInteractionHandleProxies.asInterfaceInstance;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -332,7 +332,7 @@ public class Synchronizer<T> {
 
 	private static class StateVariable<T> implements Comparable<StateVariable<T>> {
 		final Sync annotation;
-		MethodHandle getter, setter;
+		MethodInteractionHandle getter, setter;
 		Class<?> type;
 		String name;
 
@@ -341,7 +341,7 @@ public class Synchronizer<T> {
 			this.name = f.getName();
 			this.type = f.getType();
 			try {
-				Lookup l = MethodHandles.publicLookup();
+				Lookup l = MethodInteractionHandles.publicLookup();
 				this.getter = l.unreflectGetter(f);
 				if (annotation.type() == Type.Fix) return;
 				try {
@@ -361,7 +361,7 @@ public class Synchronizer<T> {
 			this.name = m.getName();
 			this.type = m.getReturnType();
 			try {
-				Lookup l = MethodHandles.publicLookup();
+				Lookup l = MethodInteractionHandles.publicLookup();
 				this.getter = l.unreflect(m);
 				if (annotation.type() == Type.Fix) return;
 				Class<?> c = m.getDeclaringClass();
@@ -403,7 +403,7 @@ public class Synchronizer<T> {
 					if (enc.binary != null) {
 						index = l.getRight().size();
 						l.getRight().add(Triple.of(get, set, enc.binary));
-					} else Lib.LOG.error("Failed to handle @Sync(on = GUI) {}:\nBinary serialization not supported for {}!", name, type);
+					} else Lib.LOG.error("Failed to InteractionHandle @Sync(on = GUI) {}:\nBinary serialization not supported for {}!", name, type);
 			} else {
 				Object[] enums = type.getEnumConstants();
 				enc_dec = Pair.of(
@@ -422,9 +422,9 @@ public class Synchronizer<T> {
 				}
 			}
 			if (enc_dec.getLeft() == null && mask != Sync.GUI)
-				Lib.LOG.error("Failed to handle @Sync {}:\nNBT serialization not supported for {}!", name, type);
+				Lib.LOG.error("Failed to InteractionHandle @Sync {}:\nNBT serialization not supported for {}!", name, type);
 			else if (enc_dec.getRight() == null && mask != Sync.GUI)
-				Lib.LOG.error("Failed to handle @Sync {}:\nField can't be final, in-place write not supported for {}!", name, type);
+				Lib.LOG.error("Failed to InteractionHandle @Sync {}:\nField can't be final, in-place write not supported for {}!", name, type);
 			else l.getLeft().add(new EncoderNBT<>(mask, index, tag(), enc_dec));
 		}
 

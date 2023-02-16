@@ -9,7 +9,7 @@ import cd4017be.lib.render.model.JitBakedModel;
 import cd4017be.lib.util.ItemFluidUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.*;
@@ -54,10 +54,10 @@ public class MicroBlock extends GridPart {
 	}
 
 	@Override
-	public Object getHandler(int port) {return null;}
+	public Object getInteractionHandler(int port) {return null;}
 
 	@Override
-	public void setHandler(int port, Object handler) {}
+	public void setInteractionHandler(int port, Object InteractionHandler) {}
 
 	@Override
 	public boolean isMaster(int channel) {
@@ -96,10 +96,10 @@ public class MicroBlock extends GridPart {
 	}
 
 	@Override
-	public ActionResultType
-	onInteract(PlayerEntity player, Hand hand, BlockRayTraceResult hit, int pos) {
-		if (hand != null) return ActionResultType.PASS;
-		if (!player.level.isClientSide && player.getMainHandItem().getItem() instanceof IGridItem) {
+	public InteractionResult
+	onInteract(PlayerEntity player, InteractionHand InteractionHand, BlockRayTraceResult hit, int pos) {
+		if (InteractionHand != null) return InteractionResult.PASS;
+		if (!player.level.isClientSide && player.getMainInteractionHandItem().getItem() instanceof IGridItem) {
 			long b = bounds & ~(1L << pos);
 			if (b == 0) {
 				IGridHost host = this.host;
@@ -112,7 +112,7 @@ public class MicroBlock extends GridPart {
 				ItemFluidUtil.dropStack(stack, player);
 			}
 		}
-		return ActionResultType.CONSUME;
+		return InteractionResult.CONSUME;
 	}
 
 	public boolean addVoxel(int pos) {

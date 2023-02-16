@@ -6,7 +6,7 @@ import net.minecraftforge.fluids.FluidStack;
 
 /**
  * @author CD4017BE */
-public class BasicTanks implements IFluidHandlerModifiable {
+public class BasicTanks implements IFluidInteractionHandlerModifiable {
 
 	public final FluidStack[] inv;
 	public final int[] caps;

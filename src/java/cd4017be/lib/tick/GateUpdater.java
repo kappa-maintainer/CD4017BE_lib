@@ -5,6 +5,9 @@ import static net.minecraftforge.common.MinecraftForge.EVENT_BUS;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -13,16 +16,16 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.profiler.IProfiler;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TranslationTextComponent;
+
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.ServerTickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.CommandSource;
 import net.minecraftforge.fml.event.server.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 
@@ -75,7 +78,7 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 	@Override
 	public void accept(ServerTickEvent event) {
 		if (event.phase != Phase.END) return;
-		IProfiler profiler = server.getProfiler();
+		ProfilerFiller profiler = server.getProfiler();
 		profiler.push("GateUpdater");
 		TICK++;
 		if (start != end && steps != 0) tickGates(profiler);
@@ -83,7 +86,7 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 		profiler.pop();
 	}
 
-	private void tickGates(IProfiler profiler) {
+	private void tickGates(ProfilerFiller profiler) {
 		if (steps > 0) steps--;
 		profiler.push("evaluate");
 		evaluating = true;
@@ -109,7 +112,7 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 		profiler.pop();
 	}
 
-	private void tickSlow(IProfiler profiler) {
+	private void tickSlow(ProfilerFiller profiler) {
 		profiler.push("tick8");
 		for (int i = TICK & 7; i < slowCount; i+=8) {
 			if (slowTicks[i].tick8()) continue;
@@ -136,7 +139,7 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 	}
 
 	@SubscribeEvent
-	public static void onServerStart(FMLServerAboutToStartEvent event) {
+	public static void onServerStart(FMLDedicatedServerSetupEvent event) {
 		if (GATE_UPDATER != null) return;
 		EVENT_BUS.addListener(GATE_UPDATER = new GateUpdater(event.getServer()));
 		TICK = 0;
@@ -154,7 +157,7 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 
 	// Commands:
 	private static final SimpleCommandExceptionType ERROR_NOT_PAUSED
-	= new SimpleCommandExceptionType(new TranslationTextComponent("command.cd4017be.not_paused"));
+	= new SimpleCommandExceptionType(new TranslatableComponent("command.cd4017be.not_paused"));
 
 	@SubscribeEvent
 	public static void registerCommands(RegisterCommandsEvent event) {
@@ -171,27 +174,27 @@ public final class GateUpdater implements Consumer<ServerTickEvent> {
 		);
 	}
 
-	private static int cmd_count(CommandContext<CommandSource> cont) {
+	private static int cmd_count(CommandContext<CommandSourceStack> cont) {
 		int n = GATE_UPDATER.count(), s = GATE_UPDATER.steps;
-		cont.getSource().sendSuccess(new TranslationTextComponent(
+		cont.getSource().sendSuccess(new TranslatableComponent(
 			s < 0 ? "command.cd4017be.ticking" : "command.cd4017be.stepping", n, s
 		), true);
 		return s;
 	}
 
-	private static int cmd_pause(CommandContext<CommandSource> cont) {
+	private static int cmd_pause(CommandContext<CommandSourceStack> cont) {
 		GATE_UPDATER.steps = 0;
-		cont.getSource().sendSuccess(new TranslationTextComponent("command.cd4017be.paused"), true);
+		cont.getSource().sendSuccess(new TranslatableComponent("command.cd4017be.paused"), true);
 		return 0;
 	}
 
-	private static int cmd_resume(CommandContext<CommandSource> cont) {
+	private static int cmd_resume(CommandContext<CommandSourceStack> cont) {
 		GATE_UPDATER.steps = -1;
-		cont.getSource().sendSuccess(new TranslationTextComponent("command.cd4017be.resumed"), true);
+		cont.getSource().sendSuccess(new TranslatableComponent("command.cd4017be.resumed"), true);
 		return 0;
 	}
 
-	private static int cmd_step(CommandContext<CommandSource> cont) throws CommandSyntaxException {
+	private static int cmd_step(CommandContext<CommandSourceStack> cont) throws CommandSyntaxException {
 		int s = GATE_UPDATER.steps;
 		if (s < 0) throw ERROR_NOT_PAUSED.create();
 		try {s = cont.getArgument("ticks", Integer.class);}

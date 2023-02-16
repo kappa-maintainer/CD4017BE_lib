@@ -3,10 +3,10 @@ package cd4017be.lib.item;
 import cd4017be.api.grid.IGridHost;
 import cd4017be.api.grid.IGridItem;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
-import net.minecraft.util.ActionResultType;
+import net.minecraft.util.InteractionResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.IWorldReader;
 import net.minecraft.world.World;
@@ -18,7 +18,7 @@ public abstract class GridItem extends DocumentedItem implements IGridItem {
 		super(p);
 	}
 
-	public ActionResultType useOn(ItemUseContext context) {
+	public InteractionResult useOn(ItemUseContext context) {
 		return placeAndInteract(context);
 	}
 

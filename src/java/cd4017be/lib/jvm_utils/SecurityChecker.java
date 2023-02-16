@@ -142,7 +142,7 @@ public class SecurityChecker {
 		case 6: //Double
 			return 8;
 		/*
-		case 15: //Method Handle
+		case 15: //Method InteractionHandle
 			return 3;
 		case 16: //Method Type
 			return 2;

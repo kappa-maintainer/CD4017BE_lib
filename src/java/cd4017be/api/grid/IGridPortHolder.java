@@ -2,6 +2,7 @@ package cd4017be.api.grid;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 
 /**Lets TileEntities have signal connections with
  * {@link GridPart}s or other {@link IGridPortHolder}s.
@@ -10,7 +11,7 @@ public interface IGridPortHolder extends IPortHolder {
 
 	ExtGridPorts extPorts();
 
-	World world();
+	Level world();
 
 	BlockPos pos();
 

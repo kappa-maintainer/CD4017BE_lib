@@ -18,8 +18,8 @@ import net.minecraftforge.client.model.data.IModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 
 /**A model that is baked "just in time" by for example
- * a TileEntity to render special static graphics.
- * @see TileEntityModel
+ * a BlockEntity to render special static graphics.
+ * @see BlockEntityModel
  * @author CD4017BE */
 @OnlyIn(Dist.CLIENT)
 public class JitBakedModel implements IBakedModel {

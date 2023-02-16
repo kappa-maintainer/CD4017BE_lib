@@ -16,10 +16,10 @@ compressed: false
    7: F 0.0 # rotation Yaw
    8: F 0.0 # rotation Pitch
   ]
-  "3PLefthand": [...] # other item perspectives
-  "3PRighthand": [...]
-  "1PLefthand": [...]
-  "1PRighthand": [...]
+  "3PLeftInteractionHand": [...] # other item perspectives
+  "3PRightInteractionHand": [...]
+  "1PLeftInteractionHand": [...]
+  "1PRightInteractionHand": [...]
   "head": [...]
   "gui": [...]
   "ground": [...]

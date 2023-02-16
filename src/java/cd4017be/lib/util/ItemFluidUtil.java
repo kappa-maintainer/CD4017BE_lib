@@ -9,9 +9,9 @@ import java.util.function.ToIntFunction;
 
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.fluid.Fluid;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
@@ -22,11 +22,15 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.items.IItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.IItemInteractionHandler;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 import net.minecraftforge.registries.ForgeRegistries;
 
 /**
@@ -180,7 +184,7 @@ public class ItemFluidUtil {
 		return icr;
 	}*/
 
-	public static int transferItems(IItemHandler src, IItemHandler dst, IFilter<ItemStack, IItemHandler> extr, IFilter<ItemStack, IItemHandler> ins) {
+	public static int transferItems(IItemInteractionHandler src, IItemInteractionHandler dst, IFilter<ItemStack, IItemInteractionHandler> extr, IFilter<ItemStack, IItemInteractionHandler> ins) {
 		ItemStack stack;
 		int n, m = 0;
 		for (int i = 0; i < src.getSlots(); i++) {
@@ -188,9 +192,9 @@ public class ItemFluidUtil {
 			if (extr != null && (n = (stack = extr.getExtract(stack, src)).getCount()) == 0) continue;
 			if (ins != null) {
 				if ((n = ins.insertAmount(stack, dst)) == 0) continue;
-				stack = ItemHandlerHelper.copyStackWithSize(stack, n);
+				stack = ItemInteractionHandlerHelper.copyStackWithSize(stack, n);
 			}
- 			if ((n -= ItemHandlerHelper.insertItemStacked(dst, stack, false).getCount()) > 0) {
+ 			if ((n -= ItemInteractionHandlerHelper.insertItemStacked(dst, stack, false).getCount()) > 0) {
  				src.extractItem(i, n, false);
  				m += n;
  			}
@@ -198,14 +202,14 @@ public class ItemFluidUtil {
 		return m;
 	}
 
-	public static int findStack(ItemStack item, IItemHandler inv, int p) {
+	public static int findStack(ItemStack item, IItemInteractionHandler inv, int p) {
 		if (item.isEmpty()) return -1;
 		for (int i = p; i < inv.getSlots(); i++)
 			if (ItemStack.matches(item, inv.getStackInSlot(i))) return i;
 		return -1;
 	}
 
-	public static ItemStack putInSlots(IItemHandler inv, ItemStack stack, int... slots) {
+	public static ItemStack putInSlots(IItemInteractionHandler inv, ItemStack stack, int... slots) {
 		for (int s : slots)
 			if (inv.getStackInSlot(s).getCount() > 0 && (stack = inv.insertItem(s, stack, false)).getCount() == 0)
 				return stack;
@@ -215,10 +219,10 @@ public class ItemFluidUtil {
 		return stack;
 	}
 
-	public static int drain(IItemHandler inv, ItemStack type, int am) {
+	public static int drain(IItemInteractionHandler inv, ItemStack type, int am) {
 		int m = 0;
 		for (int i = 0; i < inv.getSlots() && m < am; i++) 
-			if (ItemHandlerHelper.canItemStacksStack(type, inv.getStackInSlot(i))) {
+			if (ItemInteractionHandlerHelper.canItemStacksStack(type, inv.getStackInSlot(i))) {
 				ItemStack stack = inv.extractItem(i, am - m, false);
 				m += stack.getCount();
 			}
@@ -227,7 +231,7 @@ public class ItemFluidUtil {
 
 	public static void addToList(ArrayList<ItemStack> list, ItemStack item) {
 		for (ItemStack stack : list)
-			if (ItemHandlerHelper.canItemStacksStack(item, stack)) {
+			if (ItemInteractionHandlerHelper.canItemStacksStack(item, stack)) {
 				stack.grow(item.getCount());
 				return;
 			}
@@ -243,25 +247,25 @@ public class ItemFluidUtil {
 		list.add(fluid);
 	}
 
-	public static ItemStack drain(IItemHandler inv, int am) {
+	public static ItemStack drain(IItemInteractionHandler inv, int am) {
 		boolean mss = am < 0;
 		if (mss) am = 65536;
 		for (int i = 0; i < inv.getSlots(); i++) {
 			ItemStack stack = inv.extractItem(i, am, true);
 			if (stack.getCount() == 0) continue;
-			return ItemHandlerHelper.copyStackWithSize(stack, drain(inv, stack, mss ? stack.getMaxStackSize() : am));
+			return ItemInteractionHandlerHelper.copyStackWithSize(stack, drain(inv, stack, mss ? stack.getMaxStackSize() : am));
 		}
 		return ItemStack.EMPTY;
 	}
 
-	public static ItemStack drain(IItemHandler inv, ToIntFunction<ItemStack> filter) {
+	public static ItemStack drain(IItemInteractionHandler inv, ToIntFunction<ItemStack> filter) {
 		for (int i = 0; i < inv.getSlots(); i++) {
 			ItemStack stack = inv.extractItem(i, 1, true);
 			int m;
 			if (stack.getCount() > 0 && (m = filter.applyAsInt(stack)) > 0) {
 				int n = inv.extractItem(i, m, false).getCount();
 				while (n < m && ++i < inv.getSlots())
-					if (ItemHandlerHelper.canItemStacksStack(inv.getStackInSlot(i), stack))
+					if (ItemInteractionHandlerHelper.canItemStacksStack(inv.getStackInSlot(i), stack))
 						n += inv.extractItem(i, m, false).getCount();
 				stack.setCount(n);
 				return stack;
@@ -270,15 +274,15 @@ public class ItemFluidUtil {
 		return ItemStack.EMPTY;
 	}
 
-	/*public static class StackedFluidAccess implements IFluidHandler {
+	/*public static class StackedFluidAccess implements IFluidInteractionHandler {
 
-		public final IFluidHandlerItem acc;
+		public final IFluidInteractionHandlerItem acc;
 		private final int n;
 
 		public StackedFluidAccess(ItemStack item) {
 			this.n = item.getCount();
 			if (n > 0) {
-				this.acc = FluidUtil.getFluidHandler(ItemHandlerHelper.copyStackWithSize(item, 1));
+				this.acc = FluidUtil.getFluidInteractionHandler(ItemInteractionHandlerHelper.copyStackWithSize(item, 1));
 			} else {
 				this.acc = null;
 			}
@@ -369,24 +373,24 @@ public class ItemFluidUtil {
 	public static FluidStack drainFluid(World world, BlockPos pos, Predicate<FluidStack> filter) {
 		BlockState state = world.getBlockState(pos);
 		Block block = state.getBlock();
-		if (!(block instanceof IBucketPickupHandler)) return FluidStack.EMPTY;
+		if (!(block instanceof IBucketPickupInteractionHandler)) return FluidStack.EMPTY;
 		FluidState fstate = state.getFluidState();
 		if (!fstate.isSource() || !filter.test(new FluidStack(fstate.getType(), BUCKET_VOLUME)))
 			return FluidStack.EMPTY;
 		return new FluidStack(
-			((IBucketPickupHandler)block)
+			((IBucketPickupInteractionHandler)block)
 			.takeLiquid(world, pos, state), BUCKET_VOLUME
 		);
 	}
 
-	public static boolean placeFluid(World world, BlockPos pos, FluidStack stack) {
+	public static boolean placeFluid(Level world, BlockPos pos, FluidStack stack) {
 		Fluid fluid = stack.getFluid();
 		FluidAttributes attr = fluid.getAttributes();
 		if (fluid == Fluids.EMPTY || !attr.canBePlacedInWorld(world, pos, stack)) return false;
 		BlockState blockstate = world.getBlockState(pos);
 		Block block = blockstate.getBlock();
-		if (block instanceof ILiquidContainer)
-			return ((ILiquidContainer)block).placeLiquid(
+		if (block instanceof LiquidBlockContainer)
+			return ((LiquidBlockContainer)block).placeLiquid(
 				world, pos, blockstate,
 				attr.getStateForPlacement(world, pos, stack)
 			);

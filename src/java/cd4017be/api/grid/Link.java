@@ -28,12 +28,12 @@ public class Link {
 			providerPort = port;
 		}
 		if (provider != null && master != null)
-			master.setHandler(masterPort, provider.getHandler(providerPort));
+			master.setInteractionHandler(masterPort, provider.getInteractionHandler(providerPort));
 	}
 
 	private boolean unload(IPortHolder obj, int port) {
 		if (obj.isMaster(port)) {
-			obj.setHandler(port, null);
+			obj.setInteractionHandler(port, null);
 			if (master == obj && masterPort == port) {
 				master = null;
 				if (provider == null) return true;
@@ -41,7 +41,7 @@ public class Link {
 		} else if (provider == obj && providerPort == port) {
 			provider = null;
 			if (master == null) return true;
-			master.setHandler(masterPort, null);
+			master.setInteractionHandler(masterPort, null);
 		}
 		return false;
 	}

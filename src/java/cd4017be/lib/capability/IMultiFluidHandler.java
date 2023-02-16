@@ -1,12 +1,12 @@
 package cd4017be.lib.capability;
 
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidInteractionHandler;
 
-/**This {@link IFluidHandler} provides additional fill and drain access to specific internal tanks and
- * comes with all the fill/drain methods default implemented based on {@link IFluidHandlerModifiable}.
+/**This {@link IFluidInteractionHandler} provides additional fill and drain access to specific internal tanks and
+ * comes with all the fill/drain methods default implemented based on {@link IFluidInteractionHandlerModifiable}.
  * @author CD4017BE */
-public interface IMultiFluidHandler extends IFluidHandlerModifiable {
+public interface IMultiFluidInteractionHandler extends IFluidInteractionHandlerModifiable {
 
 	/**@param tank
 	 * @return whether the given tank should be used in
@@ -91,12 +91,12 @@ public interface IMultiFluidHandler extends IFluidHandlerModifiable {
 	}
 
 	/**@param tank the internal tank to access
-	 * @return a fluid sub-handler representing the given internal tank */
-	default IFluidHandler accessTank(int tank) {
-		return new IFluidHandler() {
+	 * @return a fluid sub-InteractionHandler representing the given internal tank */
+	default IFluidInteractionHandler accessTank(int tank) {
+		return new IFluidInteractionHandler() {
 			@Override
 			public boolean isFluidValid(int t, FluidStack stack) {
-				return IMultiFluidHandler.this.isFluidValid(tank, stack);
+				return IMultiFluidInteractionHandler.this.isFluidValid(tank, stack);
 			}
 			
 			@Override
@@ -106,28 +106,28 @@ public interface IMultiFluidHandler extends IFluidHandlerModifiable {
 			
 			@Override
 			public int getTankCapacity(int t) {
-				return IMultiFluidHandler.this.getTankCapacity(tank);
+				return IMultiFluidInteractionHandler.this.getTankCapacity(tank);
 			}
 			
 			@Override
 			public FluidStack getFluidInTank(int t) {
-				return IMultiFluidHandler.this.getFluidInTank(tank);
+				return IMultiFluidInteractionHandler.this.getFluidInTank(tank);
 			}
 			
 			@Override
 			public int fill(FluidStack resource, FluidAction action) {
-				return IMultiFluidHandler.this.fill(tank, resource, action);
+				return IMultiFluidInteractionHandler.this.fill(tank, resource, action);
 			}
 			
 			@Override
 			public FluidStack drain(int maxDrain, FluidAction action) {
-				return IMultiFluidHandler.this.drain(tank, maxDrain, action);
+				return IMultiFluidInteractionHandler.this.drain(tank, maxDrain, action);
 			}
 			
 			@Override
 			public FluidStack drain(FluidStack resource, FluidAction action) {
-				if (resource.isFluidEqual(IMultiFluidHandler.this.getFluidInTank(tank)))
-					return IMultiFluidHandler.this.drain(tank, resource.getAmount(), action);
+				if (resource.isFluidEqual(IMultiFluidInteractionHandler.this.getFluidInTank(tank)))
+					return IMultiFluidInteractionHandler.this.drain(tank, resource.getAmount(), action);
 				else return FluidStack.EMPTY;
 			}
 		};

@@ -1,7 +1,7 @@
 package cd4017be.lib.gui;
 
 import cd4017be.lib.Lib;
-import cd4017be.lib.network.GuiNetworkHandler;
+import cd4017be.lib.network.GuiNetworkInteractionHandler;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -12,7 +12,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.inventory.container.Slot;
@@ -30,7 +30,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.client.gui.GuiUtils;
-import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.ItemInteractionHandlerHelper;
 
 import static cd4017be.lib.gui.comp.IGuiComp.*;
 import static cd4017be.lib.text.TooltipUtil.*;
@@ -190,7 +190,7 @@ public class ModularGui<T extends AdvancedContainer> extends ContainerScreen<T> 
 		ItemStack itemstack = inventory.getCarried();
 		if (slot instanceof SlotHolo && slot != lastClickSlot) {
 			ItemStack slotstack = slot.getItem();
-			if (itemstack.isEmpty() || slotstack.isEmpty() || ItemHandlerHelper.canItemStacksStack(itemstack, slotstack))
+			if (itemstack.isEmpty() || slotstack.isEmpty() || ItemInteractionHandlerHelper.canItemStacksStack(itemstack, slotstack))
 				this.slotClicked(slot, slot.index, b, ClickType.PICKUP);
 			lastClickSlot = slot;
 			return true;
@@ -334,22 +334,22 @@ public class ModularGui<T extends AdvancedContainer> extends ContainerScreen<T> 
 
 	/**
 	 * sends a packet to the server that is addressed to this GUI's data provider and contains a single byte of payload.<br>
-	 * (convenience method for handling button events)
+	 * (convenience method for InteractionHandling button events)
 	 * @param c value to send
 	 */
 	public void sendCommand(int c) {
-		FriendlyByteBuf buff = GuiNetworkHandler.preparePacket(menu);
+		FriendlyByteBuf buff = GuiNetworkInteractionHandler.preparePacket(menu);
 		buff.writeByte(c);
-		GuiNetworkHandler.GNH_INSTANCE.sendToServer(buff);
+		GuiNetworkInteractionHandler.GNH_INSTANCE.sendToServer(buff);
 	}
 
 	/**
 	 * sends a packet to the server that is addressed to this GUI's data provider and contains the given values as payload.<br>
-	 * (convenience method for handling button events)
+	 * (convenience method for InteractionHandling button events)
 	 * @param args data to send (supports: byte, short, int, long, float, double, String)
 	 */
 	public void sendPkt(Object... args) {
-		FriendlyByteBuf buff = GuiNetworkHandler.preparePacket(menu);
+		FriendlyByteBuf buff = GuiNetworkInteractionHandler.preparePacket(menu);
 		for (Object arg : args) {
 			if (arg instanceof Byte) buff.writeByte((Byte)arg);
 			else if (arg instanceof Short) buff.writeShort((Short)arg);
@@ -360,7 +360,7 @@ public class ModularGui<T extends AdvancedContainer> extends ContainerScreen<T> 
 			else if (arg instanceof String) buff.writeUtf((String)arg);
 			else throw new IllegalArgumentException();
 		}
-		GuiNetworkHandler.GNH_INSTANCE.sendToServer(buff);
+		GuiNetworkInteractionHandler.GNH_INSTANCE.sendToServer(buff);
 	}
 
 }

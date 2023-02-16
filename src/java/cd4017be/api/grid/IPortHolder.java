@@ -1,7 +1,7 @@
 package cd4017be.api.grid;
 
 /**API for the port connection system, mostly used by {@link GridPart}s.
- * It lets master ports interact with provider ports via a handler
+ * It lets master ports interact with provider ports via a InteractionHandler
  * object that is passed from provider to master when connecting.
  * @see IEnergyAccess
  * @see IFluidAccess
@@ -11,17 +11,17 @@ package cd4017be.api.grid;
 public interface IPortHolder {
 
 	/**@param port index for identification
-	 * @return the handler object of the given provider port.
+	 * @return the InteractionHandler object of the given provider port.
 	 * May be null if not available! */
-	Object getHandler(int port);
+	Object getInteractionHandler(int port);
 
 	/**@param port index for identification
-	 * @param handler connecting to the given master port or null to disconnect. */
-	void setHandler(int port, Object handler);
+	 * @param InteractionHandler connecting to the given master port or null to disconnect. */
+	void setInteractionHandler(int port, Object InteractionHandler);
 
 	/**@param port index for identification
 	 * @return whether the given port is a master that implements via
-	 * {@link #setHandler()} rather than {@link #getHandler()} */
+	 * {@link #setInteractionHandler()} rather than {@link #getInteractionHandler()} */
 	boolean isMaster(int port);
 
 
@@ -40,19 +40,19 @@ public interface IPortHolder {
 			return host.isMaster(channel);
 		}
 
-		public void setHandler(Object handler) {
-			host.setHandler(channel, handler);
+		public void setInteractionHandler(Object InteractionHandler) {
+			host.setInteractionHandler(channel, InteractionHandler);
 		}
 
-		public Object getHandler() {
-			return host.getHandler(channel);
+		public Object getInteractionHandler() {
+			return host.getInteractionHandler(channel);
 		}
 
 		public boolean connect(Port other) {
 			boolean master = isMaster();
 			if (!master ^ other.isMaster()) return false;
-			if (master) setHandler(other.getHandler());
-			else other.setHandler(getHandler());
+			if (master) setInteractionHandler(other.getInteractionHandler());
+			else other.setInteractionHandler(getInteractionHandler());
 			return true;
 		}
 

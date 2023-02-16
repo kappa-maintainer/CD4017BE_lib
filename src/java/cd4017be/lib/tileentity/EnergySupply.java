@@ -1,14 +1,14 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import cd4017be.lib.block.BlockTE.ITENeighborChange;
 import cd4017be.lib.capability.CachedCap;
 import cd4017be.lib.container.ContainerEnergySupply;
 import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.*;
-import cd4017be.lib.tileentity.BaseTileEntity.ITickableServerOnly;
-import net.minecraft.entity.player.*;
+import cd4017be.lib.BlockEntity.BaseBlockEntity.ITickableServerOnly;
+import net.minecraft.world.entity.player.*;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.BlockEntity.BlockEntityType;
 import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.capabilities.Capability;
@@ -19,10 +19,10 @@ import static cd4017be.lib.capability.NullEnergyStorage.INSTANCE;
 import static cd4017be.lib.network.Sync.*;
 
 /** @author CD4017BE */
-public class EnergySupply extends BaseTileEntity
+public class EnergySupply extends BaseBlockEntity
 implements IEnergyStorage, ITickableServerOnly, ITENeighborChange, IUnnamedContainerProvider, IPlayerPacketReceiver {
 
-	final LazyOptional<IEnergyStorage> handler = LazyOptional.of(()->this);
+	final LazyOptional<IEnergyStorage> InteractionHandler = LazyOptional.of(()->this);
 	@SuppressWarnings("unchecked")
 	final CachedCap<IEnergyStorage>[] receivers = new CachedCap[6];
 
@@ -34,7 +34,7 @@ implements IEnergyStorage, ITickableServerOnly, ITENeighborChange, IUnnamedConta
 	@Sync(to=GUI) public long t() {return level.getGameTime() - t0 - 1;}
 	boolean updateCaps;
 
-	public EnergySupply(TileEntityType<EnergySupply> type) {
+	public EnergySupply(BlockEntityType<EnergySupply> type) {
 		super(type);
 	}
 
@@ -56,14 +56,14 @@ implements IEnergyStorage, ITickableServerOnly, ITENeighborChange, IUnnamedConta
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == ENERGY) return handler.cast();
+		if (cap == ENERGY) return InteractionHandler.cast();
 		return super.getCapability(cap, side);
 	}
 
 	@Override
 	protected void invalidateCaps() {
 		super.invalidateCaps();
-		handler.invalidate();
+		InteractionHandler.invalidate();
 	}
 
 	@Override
@@ -128,7 +128,7 @@ implements IEnergyStorage, ITickableServerOnly, ITENeighborChange, IUnnamedConta
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
 		switch(pkt.readByte()) {
 		case 0:
 			if((limI = pkt.readInt()) < 0) limI = 0;

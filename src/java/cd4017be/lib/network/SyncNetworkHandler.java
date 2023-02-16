@@ -11,14 +11,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.util.InteractionHand;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
@@ -32,26 +32,26 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 
 /**
- * Handles general purpose communication packets send between server and client for TileEntities, Entities and player held ItemStacks
+ * InteractionHandles general purpose communication packets send between server and client for TileEntities, Entities and player held ItemStacks
  * @author CD4017BE
  */
-public class SyncNetworkHandler extends NetworkHandler {
+public class SyncNetworkInteractionHandler extends NetworkInteractionHandler {
 
-	public static final int Y_TILEENTITY = 0, Y_ENTITY = -1, Y_ITEM = -2; //TODO set below y = -64 in 1.17
+	public static final int Y_BlockEntity = 0, Y_ENTITY = -1, Y_ITEM = -2; //TODO set below y = -64 in 1.17
 	public static final int HEADERSIZE = 9;
 	private static int MAX_PACKSIZE;
 
 	/**the instance */
-	public static SyncNetworkHandler instance;
+	public static SyncNetworkInteractionHandler instance;
 
 	public static void register() {
 		MAX_PACKSIZE = Lib.CFG_COMMON.packet_chain_threshold.get() + HEADERSIZE;
-		if (instance == null) instance = new SyncNetworkHandler(new ResourceLocation(Lib.ID, "sy"));
+		if (instance == null) instance = new SyncNetworkInteractionHandler(new ResourceLocation(Lib.ID, "sy"));
 	}
 
 	private final HashMap<ServerPlayerEntity, ByteBuf> chainedPackets;
 
-	private SyncNetworkHandler(ResourceLocation channel) {
+	private SyncNetworkInteractionHandler(ResourceLocation channel) {
 		super(channel);
 		this.chainedPackets = new HashMap<>();
 		MinecraftForge.EVENT_BUS.register(this);
@@ -59,53 +59,53 @@ public class SyncNetworkHandler extends NetworkHandler {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void handleServerPacket(FriendlyByteBuf pkt) throws Exception {
+	public void InteractionHandleServerPacket(FriendlyByteBuf pkt) throws Exception {
 		Minecraft mc = Minecraft.getInstance();
 		World world = mc.level;
 		ClientPlayerEntity player = mc.player;
 		for (FriendlyByteBuf buf : new PacketSplitter(pkt)) {
 			BlockPos target = buf.readBlockPos();
 			int y = target.getY();
-			if (y >= Y_TILEENTITY) {
-				TileEntity te = Utils.getTileAt(world, target);
+			if (y >= Y_BlockEntity) {
+				BlockEntity te = Utils.getTileAt(world, target);
 				if (te instanceof IServerPacketReceiver)
-					((IServerPacketReceiver)te).handleServerPacket(buf);
+					((IServerPacketReceiver)te).InteractionHandleServerPacket(buf);
 			} else if (y == Y_ENTITY) {
 				Entity entity = world.getEntity(target.getX() & 0xffff | target.getZ() << 16);
 				if (entity instanceof IServerPacketReceiver)
-					((IServerPacketReceiver)entity).handleServerPacket(buf);
+					((IServerPacketReceiver)entity).InteractionHandleServerPacket(buf);
 			} else if (y == Y_ITEM) {
 				int slot = target.getX();
 				if (slot < 0 || slot >= player.inventory.getContainerSize()) continue;
 				ItemStack stack = player.inventory.getItem(slot);
 				Item item = stack.getItem();
 				if (item instanceof IServerPacketReceiver.ItemSPR)
-					((IServerPacketReceiver.ItemSPR)item).handleServerPacket(stack, player, slot, buf);
+					((IServerPacketReceiver.ItemSPR)item).InteractionHandleServerPacket(stack, player, slot, buf);
 			}
 		}
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender) throws Exception {
 		World world = sender.level;
 		for (FriendlyByteBuf buf : new PacketSplitter(pkt)) {//TODO chained packets don't make much sense on client -> server
 			BlockPos target = buf.readBlockPos();
 			int y = target.getY();
-			if (y >= Y_TILEENTITY) {
-				TileEntity te = Utils.getTileAt(world, target);
+			if (y >= Y_BlockEntity) {
+				BlockEntity te = Utils.getTileAt(world, target);
 				if (te instanceof IPlayerPacketReceiver)
-					((IPlayerPacketReceiver)te).handlePlayerPacket(buf, sender);
+					((IPlayerPacketReceiver)te).InteractionHandlePlayerPacket(buf, sender);
 			} else if (y == Y_ENTITY) {
 				Entity entity = world.getEntity(target.getX() & 0xffff | target.getZ() << 16);
 				if (entity instanceof IPlayerPacketReceiver)
-					((IPlayerPacketReceiver)entity).handlePlayerPacket(buf, sender);
+					((IPlayerPacketReceiver)entity).InteractionHandlePlayerPacket(buf, sender);
 			} else if (y == Y_ITEM) {
 				int slot = target.getX();
 				if (slot < 0 || slot >= sender.inventory.getContainerSize()) continue;
 				ItemStack stack = sender.inventory.getItem(slot);
 				Item item = stack.getItem();
 				if (item instanceof IPlayerPacketReceiver.ItemPPR)
-					((IPlayerPacketReceiver.ItemPPR)item).handlePlayerPacket(stack, slot, buf, sender);
+					((IPlayerPacketReceiver.ItemPPR)item).InteractionHandlePlayerPacket(stack, slot, buf, sender);
 			}
 		}
 	}
@@ -151,20 +151,20 @@ public class SyncNetworkHandler extends NetworkHandler {
 	}
 
 	/**
-	 * @param tile the TileEntity to send to (on the other side)
+	 * @param tile the BlockEntity to send to (on the other side)
 	 * @return a new FriendlyByteBuf with prepared header
-	 * @see IServerPacketReceiver#handleServerPacket(FriendlyByteBuf)
-	 * @see IPlayerPacketReceiver#handlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
+	 * @see IServerPacketReceiver#InteractionHandleServerPacket(FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver#InteractionHandlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static FriendlyByteBuf preparePacket(TileEntity tile) {
+	public static FriendlyByteBuf preparePacket(BlockEntity tile) {
 		return preparePacket(tile.getBlockPos());
 	}
 
 	/**
 	 * @param entity the Entity to send to (on the other side)
 	 * @return a new FriendlyByteBuf with prepared header
-	 * @see IServerPacketReceiver#handleServerPacket(FriendlyByteBuf)
-	 * @see IPlayerPacketReceiver#handlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
+	 * @see IServerPacketReceiver#InteractionHandleServerPacket(FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver#InteractionHandlePlayerPacket(FriendlyByteBuf, ServerPlayerEntity)
 	 */
 	public static FriendlyByteBuf preparePacket(Entity entity) {
 		int id = entity.getId();
@@ -174,8 +174,8 @@ public class SyncNetworkHandler extends NetworkHandler {
 	/**
 	 * @param slot the player inventory slot to send to
 	 * @return a new FriendlyByteBuf with prepared header
-	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
-	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
+	 * @see IServerPacketReceiver.ItemSPR#InteractionHandleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver.ItemPPR#InteractionHandlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
 	 */
 	public static FriendlyByteBuf preparePacket(int slot) {
 		return preparePacket(new BlockPos(slot, Y_ITEM, 0));
@@ -183,13 +183,13 @@ public class SyncNetworkHandler extends NetworkHandler {
 
 	/**
 	 * @param player the player holding the item
-	 * @param hand the held item to send to
+	 * @param InteractionHand the held item to send to
 	 * @return a new FriendlyByteBuf with prepared header
-	 * @see IServerPacketReceiver.ItemSPR#handleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
-	 * @see IPlayerPacketReceiver.ItemPPR#handlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
+	 * @see IServerPacketReceiver.ItemSPR#InteractionHandleServerPacket(ItemStack, PlayerEntitySP, int, FriendlyByteBuf)
+	 * @see IPlayerPacketReceiver.ItemPPR#InteractionHandlePlayerPacket(ItemStack, int, FriendlyByteBuf, ServerPlayerEntity)
 	 */
-	public static FriendlyByteBuf preparePacket(PlayerEntity player, Hand hand) {
-		return preparePacket(new BlockPos(hand == Hand.MAIN_HAND ? 40 : player.inventory.selected, Y_ITEM, 0));
+	public static FriendlyByteBuf preparePacket(PlayerEntity player, InteractionHand InteractionHand) {
+		return preparePacket(new BlockPos(InteractionHand == InteractionHand.MAIN_InteractionHand ? 40 : player.inventory.selected, Y_ITEM, 0));
 	}
 
 	static class PacketSplitter implements Iterable<FriendlyByteBuf>, Iterator<FriendlyByteBuf> {

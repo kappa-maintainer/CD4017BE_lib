@@ -1,28 +1,28 @@
 package cd4017be.lib.container.slot;
 
 import cd4017be.lib.container.AdvancedContainer;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
 import net.minecraft.inventory.container.ClickType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.items.*;
 
 /**
  * Special Slot type for use with inventories that have over-ranged stack sizes that don't fit in 8-bit 
- * and/or where vanilla inventory slot interaction would cause bad glitches (requires special hard coded handling in containers).
+ * and/or where vanilla inventory slot interaction would cause bad glitches (requires special hard coded InteractionHandling in containers).
  * @author CD4017BE
  */
-public class GlitchSaveSlot extends SlotItemHandler implements ISpecialSlot {
+public class GlitchSaveSlot extends SlotItemInteractionHandler implements ISpecialSlot {
 
 	public final int index;
 	public final boolean clientInteract;
 	private int[] transferTarget;
 
-	public GlitchSaveSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition) {
-		this(itemHandler, index, xPosition, yPosition, true);
+	public GlitchSaveSlot(IItemInteractionHandler itemInteractionHandler, int index, int xPosition, int yPosition) {
+		this(itemInteractionHandler, index, xPosition, yPosition, true);
 	}
 
-	public GlitchSaveSlot(IItemHandler itemHandler, int index, int xPosition, int yPosition, boolean client) {
-		super(itemHandler, index, xPosition, yPosition);
+	public GlitchSaveSlot(IItemInteractionHandler itemInteractionHandler, int index, int xPosition, int yPosition, boolean client) {
+		super(itemInteractionHandler, index, xPosition, yPosition);
 		this.index = index;
 		this.clientInteract = client;
 	}
@@ -78,9 +78,9 @@ public class GlitchSaveSlot extends SlotItemHandler implements ISpecialSlot {
 		}
 		boolean boost = ct == ClickType.QUICK_MOVE;
 		ItemStack curItem = player.inventory.getCarried();
-		if (curItem.getCount() > 0 && (item.isEmpty() || ItemHandlerHelper.canItemStacksStack(item, curItem))) {
+		if (curItem.getCount() > 0 && (item.isEmpty() || ItemInteractionHandlerHelper.canItemStacksStack(item, curItem))) {
 			if (boost) {
-				ItemStack rem = insertItem(ItemHandlerHelper.copyStackWithSize(curItem, 65536), true);
+				ItemStack rem = insertItem(ItemInteractionHandlerHelper.copyStackWithSize(curItem, 65536), true);
 				int n = 65536 - rem.getCount(), n1 = 0;
 				if (n <= 0) return ItemStack.EMPTY;
 				if (b == 0) {
@@ -91,11 +91,11 @@ public class GlitchSaveSlot extends SlotItemHandler implements ISpecialSlot {
 					}
 				}
 				if (n1 < n)
-					n1 += ISpecialSlot.getFromPlayerInv(ItemHandlerHelper.copyStackWithSize(curItem, n - n1), player.inventory);
-				insertItem(ItemHandlerHelper.copyStackWithSize(curItem, n1), false);
+					n1 += ISpecialSlot.getFromPlayerInv(ItemInteractionHandlerHelper.copyStackWithSize(curItem, n - n1), player.inventory);
+				insertItem(ItemInteractionHandlerHelper.copyStackWithSize(curItem, n1), false);
 			} else {
 				int n = b == 0 ? curItem.getCount() : 1;
-				ItemStack rem = insertItem(ItemHandlerHelper.copyStackWithSize(curItem, n), false);
+				ItemStack rem = insertItem(ItemInteractionHandlerHelper.copyStackWithSize(curItem, n), false);
 				curItem.shrink(n - rem.getCount());
 				if (curItem.getCount() <= 0) player.inventory.setCarried(ItemStack.EMPTY);
 			}
@@ -116,11 +116,11 @@ public class GlitchSaveSlot extends SlotItemHandler implements ISpecialSlot {
 	}
 
 	public ItemStack insertItem(ItemStack stack, boolean sim) {
-		return getItemHandler().insertItem(index, stack, sim);
+		return getItemInteractionHandler().insertItem(index, stack, sim);
 	}
 
 	public ItemStack extractItem(int am, boolean sim) {
-		return getItemHandler().extractItem(index, am, sim);
+		return getItemInteractionHandler().extractItem(index, am, sim);
 	}
 
 }

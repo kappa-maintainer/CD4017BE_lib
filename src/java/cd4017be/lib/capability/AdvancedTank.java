@@ -2,23 +2,23 @@ package cd4017be.lib.capability;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.EXECUTE;
-import static net.minecraftforge.fluids.capability.IFluidHandler.FluidAction.SIMULATE;
+import static net.minecraftforge.fluids.capability.CapabilityFluidInteractionHandler.FLUID_InteractionHandLER_ITEM_CAPABILITY;
+import static net.minecraftforge.fluids.capability.IFluidInteractionHandler.FluidAction.EXECUTE;
+import static net.minecraftforge.fluids.capability.IFluidInteractionHandler.FluidAction.SIMULATE;
 
 import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 
 /**
- * IFluidHandler implementation for a single tank with integrated FluidContainer fill/drain mechanism.
+ * IFluidInteractionHandler implementation for a single tank with integrated FluidContainer fill/drain mechanism.
  * @author cd4017be
  */
-public class AdvancedTank extends AbstractInventory implements IFluidHandlerModifiable {
+public class AdvancedTank extends AbstractInventory implements IFluidInteractionHandlerModifiable {
 	/**owner */
-	public final TileEntity tile;
+	public final BlockEntity tile;
 	/**stored fluid */
 	public FluidStack fluid;
 	/**internal fluid container slot */
@@ -39,7 +39,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 	 * @param cap capacity
 	 * @param out whether this is considered as output tank
 	 */
-	public AdvancedTank(TileEntity tile, int cap, boolean out) {
+	public AdvancedTank(BlockEntity tile, int cap, boolean out) {
 		this(tile, cap, out, null);
 	}
 
@@ -49,7 +49,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 	 * @param out whether this is considered as output tank
 	 * @param type fluid type to lock to
 	 */
-	public AdvancedTank(TileEntity tile, int cap, boolean out, Fluid type) {
+	public AdvancedTank(BlockEntity tile, int cap, boolean out, Fluid type) {
 		this.tile = tile;
 		this.cap = cap;
 		this.output = out;
@@ -213,7 +213,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 			need = 0;
 			return;
 		}
-		cont.getCapability(FLUID_HANDLER_ITEM_CAPABILITY).ifPresent(acc -> {
+		cont.getCapability(FLUID_InteractionHandLER_ITEM_CAPABILITY).ifPresent(acc -> {
 			fluid.shrink(acc.fill(fluid, EXECUTE));
 			int n = fluid.getAmount();
 			int m = acc.fill(new FluidStack(fluid, cap), SIMULATE);
@@ -229,7 +229,7 @@ public class AdvancedTank extends AbstractInventory implements IFluidHandlerModi
 	 */
 	public void drainContainer() {
 		need = Integer.MIN_VALUE;
-		cont.getCapability(FLUID_HANDLER_ITEM_CAPABILITY).ifPresent(acc -> {
+		cont.getCapability(FLUID_InteractionHandLER_ITEM_CAPABILITY).ifPresent(acc -> {
 			if (fluid.getRawFluid() == Fluids.EMPTY) {
 				fluid = acc.drain(cap, EXECUTE);
 				if (fluid.isEmpty()) return;

@@ -5,7 +5,9 @@ import javax.annotation.Nullable;
 import com.google.common.collect.ImmutableList;
 
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
@@ -15,8 +17,8 @@ import static cd4017be.lib.text.TooltipUtil.*;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Supplier;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemGroup;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.text.*;
 
@@ -24,7 +26,7 @@ import net.minecraft.util.text.*;
  * @author CD4017BE */
 public class DocumentedItem extends Item {
 
-	public static final TranslationTextComponent EXT_TOOLTIP_HINT = new TranslationTextComponent("cd4017be_lib.ext");
+	public static final TranslatableComponent EXT_TOOLTIP_HINT = new TranslatableComponent("cd4017be_lib.ext");
 
 	private Supplier<Object[]> tooltipArgs;
 	protected ItemGroup extraTab;
@@ -55,7 +57,7 @@ public class DocumentedItem extends Item {
 
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void appendHoverText(ItemStack stack, @Nullable World world, List<ITextComponent> tooltip, ITooltipFlag flag) {
+	public void appendHoverText(ItemStack stack, @Nullable Level world, List<ITextComponent> tooltip, ITooltipFlag flag) {
 		addInformation(getDescriptionId(), tooltipArgs, tooltip);
 		super.appendHoverText(stack, world, tooltip, flag);
 	}

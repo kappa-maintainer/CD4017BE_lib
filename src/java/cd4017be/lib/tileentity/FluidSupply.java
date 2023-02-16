@@ -1,46 +1,46 @@
-package cd4017be.lib.tileentity;
+package cd4017be.lib.BlockEntity;
 
 import static cd4017be.lib.network.Sync.GUI;
-import static net.minecraftforge.fluids.capability.CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY;
+import static net.minecraftforge.fluids.capability.CapabilityFluidInteractionHandler.FLUID_InteractionHandLER_CAPABILITY;
 import java.util.ArrayList;
 import java.util.function.Supplier;
-import cd4017be.lib.capability.IMultiFluidHandler;
+import cd4017be.lib.capability.IMultiFluidInteractionHandler;
 import cd4017be.lib.container.ContainerFluidSupply;
 import cd4017be.lib.container.IUnnamedContainerProvider;
 import cd4017be.lib.network.IPlayerPacketReceiver;
 import cd4017be.lib.network.Sync;
 import net.minecraft.nbt.Tag;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.BlockEntity.BlockEntityType;
 import net.minecraft.core.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidInteractionHandler;
 
 /** @author CD4017BE */
-public class FluidSupply extends BaseTileEntity
-implements IMultiFluidHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
+public class FluidSupply extends BaseBlockEntity
+implements IMultiFluidInteractionHandler, IUnnamedContainerProvider, IPlayerPacketReceiver {
 
 	public static int MAX_SLOTS = 12;
 
-	final LazyOptional<IFluidHandler> handler = LazyOptional.of(()->this);
+	final LazyOptional<IFluidInteractionHandler> InteractionHandler = LazyOptional.of(()->this);
 	public final ArrayList<Slot> slots = new ArrayList<>();
 	@Sync(to=GUI) public int scroll;
 
-	public FluidSupply(TileEntityType<FluidSupply> type) {
+	public FluidSupply(BlockEntityType<FluidSupply> type) {
 		super(type);
 	}
 
 	@Override
 	public <T> LazyOptional<T> getCapability(Capability<T> cap, Direction side) {
-		if (cap == FLUID_HANDLER_CAPABILITY) return handler.cast();
+		if (cap == FLUID_InteractionHandLER_CAPABILITY) return InteractionHandler.cast();
 		return super.getCapability(cap, side);
 	}
 
@@ -152,7 +152,7 @@ implements IMultiFluidHandler, IUnnamedContainerProvider, IPlayerPacketReceiver 
 	}
 
 	@Override
-	public void handlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
+	public void InteractionHandlePlayerPacket(FriendlyByteBuf pkt, ServerPlayerEntity sender)
 	throws Exception {
 		int cmd = pkt.readByte();
 		if (cmd < 0) {

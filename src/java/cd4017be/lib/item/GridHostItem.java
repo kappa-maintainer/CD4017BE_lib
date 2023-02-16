@@ -6,13 +6,13 @@ import static net.minecraftforge.fml.network.NetworkHooks.openGui;
 import cd4017be.lib.block.BlockTE;
 import cd4017be.lib.container.ContainerGrid;
 import cd4017be.lib.container.IUnnamedContainerProvider;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
+import net.minecraft.util.InteractionHand;
 import net.minecraft.world.World;
 
 /**
@@ -24,13 +24,13 @@ public class GridHostItem extends TEModeledItem implements IUnnamedContainerProv
 	}
 
 	@Override
-	public ActionResult<ItemStack> use(World world, PlayerEntity player, Hand hand) {
-		if (hand == Hand.OFF_HAND) return super.use(world, player, hand);
+	public ActionResult<ItemStack> use(World world, PlayerEntity player, InteractionHand InteractionHand) {
+		if (InteractionHand == InteractionHand.OFF_InteractionHand) return super.use(world, player, InteractionHand);
 		if (!world.isClientSide) {
 			int slot = player.inventory.selected;
 			openGui((ServerPlayerEntity)player, this, pkt -> pkt.writeByte(slot));
 		}
-		return sidedSuccess(player.getItemInHand(hand), world.isClientSide);
+		return sidedSuccess(player.getItemInInteractionHand(InteractionHand), world.isClientSide);
 	}
 
 	@Override

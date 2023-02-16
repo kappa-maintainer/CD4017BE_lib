@@ -11,7 +11,7 @@ import cd4017be.lib.text.TooltipUtil;
 
 /**
  * A button than can have different states with different icon textures (optional) and automatically cycles through a fixed number of states on mouse clicks (optional).<br>
- * The state is handled as integer via Supplier and Consumer functions.
+ * The state is InteractionHandled as integer via Supplier and Consumer functions.
  * @author CD4017BE
  *
  */

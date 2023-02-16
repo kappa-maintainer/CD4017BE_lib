@@ -9,23 +9,23 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.World;
 
 /**
- * Caches the results of another IProtectionHandler (that potentially involves complex computation) and arranges them on a chunk grid
+ * Caches the results of another IProtectionInteractionHandler (that potentially involves complex computation) and arranges them on a chunk grid
  * @author cd4017be
  */
-public class CachedChunkWrapper implements IProtectionHandler {
+public class CachedChunkWrapper implements IProtectionInteractionHandler {
 
 	private HashMap<Key, Boolean> cache = new HashMap<Key, Boolean>();
-	private final IProtectionHandler parent;
+	private final IProtectionInteractionHandler parent;
 
 	/**
-	 * @param parent the protection handler that actually defines the permissions
+	 * @param parent the protection InteractionHandler that actually defines the permissions
 	 */
-	public CachedChunkWrapper(IProtectionHandler parent) {
+	public CachedChunkWrapper(IProtectionInteractionHandler parent) {
 		this.parent = parent;
 	}
 
 	/**
-	 * clears the internal cache so it will use fresh data from the wrapped handler.
+	 * clears the internal cache so it will use fresh data from the wrapped InteractionHandler.
 	 */
 	public void refresh() {
 		cache.clear();

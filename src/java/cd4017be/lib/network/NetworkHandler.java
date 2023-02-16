@@ -9,7 +9,7 @@ import org.apache.logging.log4j.MarkerManager;
 import cd4017be.lib.Lib;
 import cd4017be.lib.util.DimPos;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.world.entity.player.ServerPlayerEntity;
 import net.minecraft.network.*;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.ResourceLocation;
@@ -25,7 +25,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
  * @author CD4017BE
  *
  */
-public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerPacketReceiver, IPlayerPacketReceiver {
+public abstract class NetworkInteractionHandler implements Consumer<NetworkEvent>, IServerPacketReceiver, IPlayerPacketReceiver {
 
 	private static final long LOG_INTERVAL = 1000;
 	public static final Marker NETWORK = MarkerManager.getMarker("Network");
@@ -39,7 +39,7 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 	/**
 	 * @param channel packet channel id
 	 */
-	protected NetworkHandler(ResourceLocation channel) {
+	protected NetworkInteractionHandler(ResourceLocation channel) {
 		this.channel = channel;
 		this.eventChannel = NetworkRegistry.newEventChannel(channel, this::version, this::acceptClient, this::acceptServer);
 		eventChannel.addListener(this);
@@ -65,18 +65,18 @@ public abstract class NetworkHandler implements Consumer<NetworkEvent>, IServerP
 			switch(c.getDirection()) {
 			case PLAY_TO_CLIENT:
 				source = "SERVER";
-				handleServerPacket(data);
+				InteractionHandleServerPacket(data);
 				break;
 			case PLAY_TO_SERVER:
 				ServerPlayerEntity player = c.getSender();
 				source = "PLAYER \"" + player.getName() + "\"";
-				handlePlayerPacket(data, player);
+				InteractionHandlePlayerPacket(data, player);
 				break;
 				//TODO login packets
 			default:
 				return;
 			}
-			c.setPacketHandled(true);
+			c.setPacketInteractionHandled(true);
 		} catch (Exception ex) {
 			logError(data, source, ex);
 		}

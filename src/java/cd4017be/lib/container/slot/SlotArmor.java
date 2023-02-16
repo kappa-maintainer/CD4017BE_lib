@@ -1,8 +1,8 @@
 package cd4017be.lib.container.slot;
 
 import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.world.entity.player.PlayerEntity;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.container.PlayerContainer;
 import net.minecraft.world.item.ItemStack;
@@ -24,7 +24,7 @@ public class SlotArmor extends HidableSlot {
 		case FEET: loc = PlayerContainer.EMPTY_ARMOR_SLOT_BOOTS; break;
 		case HEAD: loc = PlayerContainer.EMPTY_ARMOR_SLOT_HELMET; break;
 		case LEGS: loc = PlayerContainer.EMPTY_ARMOR_SLOT_LEGGINGS; break;
-		case OFFHAND: loc = PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD; break;
+		case OFFInteractionHand: loc = PlayerContainer.EMPTY_ARMOR_SLOT_SHIELD; break;
 		default: return;
 		}
 		setBackground(PlayerContainer.BLOCK_ATLAS, loc);
@@ -32,13 +32,13 @@ public class SlotArmor extends HidableSlot {
 
 	@Override
 	public int getMaxStackSize() {
-		return type == EquipmentSlotType.OFFHAND ? 64 : 1;
+		return type == EquipmentSlotType.OFFInteractionHand ? 64 : 1;
 	}
 
 	@Override
 	public boolean mayPlace(ItemStack stack) {
 		return super.mayPlace(stack) && (
-			type == EquipmentSlotType.OFFHAND
+			type == EquipmentSlotType.OFFInteractionHand
 			|| stack.getItem().canEquip(stack, type, inv.player)
 		);
 	}
@@ -47,7 +47,7 @@ public class SlotArmor extends HidableSlot {
 	public boolean mayPickup(PlayerEntity player) {
 		ItemStack stack = this.getItem();
 		return super.mayPickup(player) && (
-			type == EquipmentSlotType.OFFHAND
+			type == EquipmentSlotType.OFFInteractionHand
 			|| stack.isEmpty() || player.isCreative()
 			|| !EnchantmentHelper.hasBindingCurse(stack)
 		);

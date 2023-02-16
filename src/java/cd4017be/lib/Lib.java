@@ -9,11 +9,11 @@ import cd4017be.api.grid.Link;
 import cd4017be.lib.config.LibClient;
 import cd4017be.lib.config.LibCommon;
 import cd4017be.lib.config.LibServer;
-import cd4017be.lib.network.GuiNetworkHandler;
-import cd4017be.lib.network.SyncNetworkHandler;
+import cd4017be.lib.network.GuiNetworkInteractionHandler;
+import cd4017be.lib.network.SyncNetworkInteractionHandler;
 import cd4017be.lib.text.TooltipUtil;
 import cd4017be.lib.tick.GateUpdater;
-import cd4017be.lib.tileentity.SyncTileEntity;
+import cd4017be.lib.BlockEntity.SyncBlockEntity;
 import net.minecraft.item.*;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.Mod;
@@ -55,17 +55,17 @@ public class Lib {
 
 	@SubscribeEvent
 	void setup(FMLCommonSetupEvent event) {
-		GuiNetworkHandler.register();
-		SyncNetworkHandler.register();
+		GuiNetworkInteractionHandler.register();
+		SyncNetworkInteractionHandler.register();
 	}
 
 	@SubscribeEvent
 	void onConfigLoad(ModConfigEvent event) {
 		if (!event.getConfig().getModId().equals(ID)) return;
 		double d = CFG_SERVER.clientSyncDst.get();
-		SyncTileEntity.CLIENT_RANGE = d * d;
+		SyncBlockEntity.CLIENT_RANGE = d * d;
 		d += CFG_SERVER.serverSyncDst.get();
-		SyncTileEntity.SERVER_RANGE = d * d;
+		SyncBlockEntity.SERVER_RANGE = d * d;
 	}
 
 	void shutdown(FMLServerStoppedEvent event) {

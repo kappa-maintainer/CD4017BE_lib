@@ -17,37 +17,38 @@ import cd4017be.lib.container.slot.GlitchSaveSlot;
 import cd4017be.lib.gui.ModularGui;
 import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
-import cd4017be.lib.tileentity.Assembler;
-import net.minecraft.entity.player.PlayerInventory;
+import cd4017be.lib.BlockEntity.Assembler;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemInteractionHandler;
 
 /**@author CD4017BE */
 public class ContainerAssembler extends AdvancedContainer {
 
 	final Assembler tile;
 
-	public ContainerAssembler(int id, PlayerInventory inv, FriendlyByteBuf buf) {
+	public ContainerAssembler(int id, Inventory inv, FriendlyByteBuf buf) {
 		this(id, inv, null, Assembler.class);
 	}
 
-	public ContainerAssembler(int id, PlayerInventory inv, Assembler tile, Object... toSync) {
+	public ContainerAssembler(int id, Inventory inv, Assembler tile, Object... toSync) {
 		super(aSSEMBLER, id, inv, StateSyncAdv.of(
 			tile == null, array(2, 21), 0, toSync
 		), 0);
 		this.tile = tile;
-		IItemHandler inv1 = tile != null ? tile : new BasicInventory(23);
+		IItemInteractionHandler inv1 = tile != null ? tile : new BasicInventory(23);
 		addSlot(new GlitchSaveSlot(inv1, 0, 8, 16, false));
 		addSlot(new GlitchSaveSlot(inv1, 1, 8, 52, false));
 		for (int j = 0, k = 2; j < 3; j++)
 			for (int i = 0; i < 7; i++, k++)
 				addSlot(new GlitchSaveSlot(inv1, k, 44 + i*18, 16 + j*18, false));
 		addPlayerInventory(8, 86);
-		transferHandlers.add((stack, cont)->
+		transferInteractionHandlers.add((stack, cont)->
 			stack.getItem() instanceof IGridItem
 				? cont.moveItemStackTo(stack, 2, 23, false)
 				: cont.moveItemStackTo(stack, 0, 1, false)

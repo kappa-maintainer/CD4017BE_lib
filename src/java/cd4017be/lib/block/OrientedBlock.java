@@ -6,7 +6,7 @@ import net.minecraft.state.StateContainer.Builder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.util.Mirror;
 import net.minecraft.util.Rotation;
 import net.minecraft.core.BlockPos;
@@ -18,7 +18,7 @@ import net.minecraft.world.*;
  * 
  * @author CD4017BE
  */
-public class OrientedBlock<T extends TileEntity> extends BlockTE<T> {
+public class OrientedBlock<T extends BlockEntity> extends BlockTE<T> {
 
 	private static PropertyOrientation TEMP;
 	public final PropertyOrientation orientProp;

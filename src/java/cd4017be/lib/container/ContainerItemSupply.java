@@ -2,7 +2,7 @@ package cd4017be.lib.container;
 
 import static cd4017be.lib.Content.iTEM_SUPP;
 import static cd4017be.lib.container.ContainerEnergySupply.TEX;
-import static cd4017be.lib.tileentity.ItemSupply.MAX_SLOTS;
+import static cd4017be.lib.BlockEntity.ItemSupply.MAX_SLOTS;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -14,14 +14,14 @@ import cd4017be.lib.container.slot.SlotHolo;
 import cd4017be.lib.gui.ModularGui;
 import cd4017be.lib.gui.comp.*;
 import cd4017be.lib.network.StateSyncAdv;
-import cd4017be.lib.tileentity.ItemSupply;
-import cd4017be.lib.tileentity.ItemSupply.Slot;
-import net.minecraft.entity.player.PlayerInventory;
+import cd4017be.lib.BlockEntity.ItemSupply;
+import cd4017be.lib.BlockEntity.ItemSupply.Slot;
+import net.minecraft.world.entity.player.PlayerInventory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.IItemInteractionHandler;
 
 /**@author CD4017BE */
 public class ContainerItemSupply extends AdvancedContainer {
@@ -36,7 +36,7 @@ public class ContainerItemSupply extends AdvancedContainer {
 		this(id, inv, new LinkedInventory(12, 127, tile::getSlot, tile::setSlot), false, tile);
 	}
 
-	private ContainerItemSupply(int id, PlayerInventory pinv, IItemHandler inv, boolean client, Object... ref) {
+	private ContainerItemSupply(int id, PlayerInventory pinv, IItemInteractionHandler inv, boolean client, Object... ref) {
 		super(iTEM_SUPP, id, pinv, StateSyncAdv.of(client, indices, 0, ref), 0);
 		for(int j = 0; j < 4; j++)
 			for(int i = 0; i < 3; i++)

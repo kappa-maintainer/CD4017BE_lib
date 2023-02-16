@@ -24,23 +24,23 @@ The syntax is demonstrated in that example Script
 
 Console output: `print(text)`
 
-**Recipe Handler types:**
+**Recipe InteractionHandler types:**
 
 *   ItemStack: creation = `it(name) it(name, amount) it(name, amount, meta) it(itemStack, amount)`, check = `hasit(name)`
 *   FluidStack: creation = `fl(name, amount)`, check = `hasfl(name)`
 *   OreDictStack: creation = `ore(name) ore(name, amount)`, list items [array] = `ores(name)`
 *   OreDictionary iterator: usage = `for(entryName : listore(regexFilter)){...}`
-*   Recipe list iterator: usage = `for(recipe : list(handlerName, regexFilter)){...}`, recipe removal: `for(recipe : ...) {recipe = nil;}`
+*   Recipe list iterator: usage = `for(recipe : list(InteractionHandlerName, regexFilter)){...}`, recipe removal: `for(recipe : ...) {recipe = nil;}`
 *   ItemStack matcher: usage = `something == isit(compareItem)`, a damage value of 32768 will ignore damage, a stack size <= 0 will ignore stack size, nbt is always ignored
 *   FluidStack matcher: usage = `something == isfl(compareFluid)`, an amount <= 0 will ignore amount, nbt is always ignored
 *   OreDictStack already has a built in matcher so you can just do `something == compareOre`
 
 Checking if a mod is loaded: `hasmod(modName)`
 
-# Recipe Handlers
-The **add** function is the most important function as it is used for all recipe declarations (recipe has a bit wider meaning here). First argument defines which handler to address, the following arguments are then handler specific [types in brackets].
+# Recipe InteractionHandlers
+The **add** function is the most important function as it is used for all recipe declarations (recipe has a bit wider meaning here). First argument defines which InteractionHandler to address, the following arguments are then InteractionHandler specific [types in brackets].
 
-**Built in handlers:**
+**Built in InteractionHandlers:**
 
 *   `add("item", [num]metaId, [string]name);` *see creating crafting materials*
 *   `add("fluidCont", [Fluid]content, [Item]full, [Item]empty);` registers a pair of item stacks as fluid container (empty can be nil)
@@ -54,7 +54,7 @@ The **add** function is the most important function as it is used for all recipe
 *   `add("shapedNBT", [string]nbtPattern, [Item]result, [string]rcpPattern, [Item]ingreds...);` shaped crafting recipe with special NBT processing:  
  `nbtPattern = "+tagName1, #tagName2, >tagName3, <tagName4, ..."` with '+' = add values of numeric tag from all ingredients together, '<' = take from ingredient with smallest tag value, '>' = take largest value, '#' = copy tag from first ingredient that has it
 
-**Inductive Automation handlers:**
+**Inductive Automation InteractionHandlers:**
 
 *   `add("advFurn", [arr]ingreds, [arr]results, [num]energy);` add an Advanced Furnace recipe (ingredients and results may contain a fluid stack and up to 3 item stacks)
 *   `add("compAs", [Item]result, [Item|Ore|nil]ingreds...x4);` add a Compression Assembler recipe (takes 4 ingredient arguments)

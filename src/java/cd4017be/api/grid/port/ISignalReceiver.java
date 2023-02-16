@@ -20,8 +20,8 @@ public interface ISignalReceiver {
 	/** port type id */
 	int TYPE_ID = 0;
 
-	static ISignalReceiver of(Object handler) {
-		return handler instanceof ISignalReceiver ? (ISignalReceiver)handler : NOP;
+	static ISignalReceiver of(Object InteractionHandler) {
+		return InteractionHandler instanceof ISignalReceiver ? (ISignalReceiver)InteractionHandler : NOP;
 	}
 
 }

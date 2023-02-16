@@ -13,12 +13,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 public interface IServerPacketReceiver {
 
 	/**
-	 * Handle a data packet from server
+	 * InteractionHandle a data packet from server
 	 * @param pkt contained payload
 	 * @throws Exception potential decoding errors
 	 */
 	@OnlyIn(Dist.CLIENT)
-	void handleServerPacket(FriendlyByteBuf pkt) throws Exception;
+	void InteractionHandleServerPacket(FriendlyByteBuf pkt) throws Exception;
 
 	/**
 	 * special version for Items
@@ -26,14 +26,14 @@ public interface IServerPacketReceiver {
 	 */
 	public interface ItemSPR {
 		/**
-		 * Handle a data packet from server
+		 * InteractionHandle a data packet from server
 		 * @param stack target ItemStack
 		 * @param player the player holding the item
 		 * @param slot where the item is located in player's inventory
 		 * @param pkt packet payload
 		 */
 		@OnlyIn(Dist.CLIENT)
-		void handleServerPacket(ItemStack stack, ClientPlayerEntity player, int slot, FriendlyByteBuf pkt) throws Exception;
+		void InteractionHandleServerPacket(ItemStack stack, ClientPlayerEntity player, int slot, FriendlyByteBuf pkt) throws Exception;
 	}
 
 }
